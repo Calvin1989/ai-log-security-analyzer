@@ -1,33 +1,33 @@
 # AI Log Security Analyzer
 
-**Local-first, explainable web log security analysis for Nginx and Apache access logs.**
+**本地优先、可解释的 Nginx 与 Apache 访问日志安全分析工具。**
 
-Local-first Web log security analysis with rule-based findings, aggregated incidents, evidence-driven reports, and sanitized sharing.
-
-## Why this project is different
-
-- **Local-first privacy**: All analysis happens on your machine. No logs are ever uploaded to a cloud service or stored in an external database.
-- **Rule-based findings**: Every security risk is identified by transparent, configurable rules, not a "black box" model.
-- **Aggregated incidents**: Automatically groups individual suspicious events into high-level security incidents (e.g., "Reconnaissance") for better context.
-- **Attack timeline**: Provides a chronological narrative of the attack, helping you understand the sequence of events.
-- **Executive Summary (v1.6)**: Generates a high-level, deterministic security summary with risk scores and levels, perfect for management presentation. **No LLM or external APIs used.**
-- **Sanitized sharing**: Built-in engine to redact sensitive information like IPs and tokens, making it safe to share reports with stakeholders.
-- **Analyst exports**: Supports exporting filtered data to CSV and JSON for further investigation in external tools.
-- **No database / no external API**: Zero infrastructure overhead. Just run the app and start analyzing.
-
-## Current Status
-
-**Current local milestone: v1.6-local**
-
-| Feature | Status |
-| :--- | :--- |
-| **CI / Tests** | ![Passing](https://img.shields.io/badge/CI-Passing-brightgreen) |
-| **Unit Tests** | ![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen) |
-| **Docker** | ![Ready](https://img.shields.io/badge/Docker-Ready-blue) |
-
-*Note: Badges are illustrative of current local build status.*
+提供基于规则的风险发现、安全事件聚合、证据驱动报告以及脱敏分享功能，专注于本地 Web 日志安全分析。
 
 ## 核心差异化优势
+
+- **本地优先的隐私保护**: 所有分析逻辑均在您的本地机器运行。日志绝不会上传至云端服务，也不会存储在外部数据库中。
+- **基于规则的风险发现**: 每一个安全风险点均由透明、可配置的规则识别，拒绝“黑盒”模型。
+- **智能事件聚合**: 自动将零散的嫌疑事件聚合成高层级的安全事件（如“侦察行为”），提供更完整的上下文。
+- **攻击时间轴 (Attack Timeline)**: 提供攻击行为的时间线叙述，帮助您理清事件发生的先后顺序。
+- **Executive Summary (v1.6)**: 自动生成面向管理层或 Portfolio 的高层级、确定性安全摘要。包含风险评分（0-100）、风险等级（Critical 到 Informational）、核心指标、顶级风险点及修复建议。**完全基于规则，不依赖 LLM 或外部 API。**
+- **安全脱敏分享**: 内置脱敏引擎，可自动屏蔽 IP 和 Token 等敏感信息，确保生成的报告可以安全地分享给相关方。
+- **分析师工作流导出**: 支持将筛选后的数据导出为 CSV 和 JSON，方便在外部工具中进行进一步调查。
+- **无数据库 / 无外部 API**: 零基础设施开销。直接运行应用即可开始分析。
+
+## 项目状态
+
+**当前本地版本: v1.6-local**
+
+| 特性 | 状态 |
+| :--- | :--- |
+| **CI / 测试** | ![Passing](https://img.shields.io/badge/CI-Passing-brightgreen) |
+| **单元测试** | ![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen) |
+| **Docker** | ![Ready](https://img.shields.io/badge/Docker-Ready-blue) |
+
+*注：徽章图标仅用于展示当前的本地构建状态。*
+
+## 核心功能
 
 - **Rule-based Findings**: 基于精准规则的底层检测，确保每一个风险点都有据可查。
 - **Rule Match Details**: 每个风险点均包含结构化的命中详情（命中次数、命中字段、命中值列表），提供透明的检测逻辑解释。
@@ -36,7 +36,7 @@ Local-first Web log security analysis with rule-based findings, aggregated incid
 - **Sanitized Sharing**: 内置脱敏引擎，支持一键生成隐藏敏感信息（IP/Token）的安全报告，方便合规分享。
 - **Local-first Design**: 核心逻辑完全本地运行，不依赖云端 API 或外部数据库，确保敏感日志不出本地。
 
-## 功能特性
+## 详细特性
 
 - **高效解析**: 快速解析标准 Nginx 和 Apache access.log (Combined Format)，提取 IP、路径、状态码等关键字段。
 - **多格式支持**: 内置自动识别逻辑，支持手动指定 Nginx 或 Apache 格式。
@@ -64,8 +64,8 @@ Local-first Web log security analysis with rule-based findings, aggregated incid
 ## 技术栈
 
 - **后端**: Python 3.11+, FastAPI, Pydantic, Pytest
-- **前端**: Vue 3 (Composition API), Vite, composables for state management
-- **CI/CD**: GitHub Actions (Backend tests, Frontend tests/build, Docker config)
+- **前端**: Vue 3 (Composition API), Vite, composables 状态管理
+- **CI/CD**: GitHub Actions (后端测试、前端测试与构建、Docker 配置)
 - **文档**: Markdown
 
 ## 项目结构
@@ -124,23 +124,23 @@ docker compose down
 ```
 启动后，访问 [http://localhost:5173](http://localhost:5173) 即可。
 
-## Custom Rules Configuration
+## 自定义规则配置
 
-You can customize the detection rules by modifying `config/rules.yaml`. The following parameters are supported:
+您可以通过修改 `config/rules.yaml` 来自定义检测规则。目前支持以下参数：
 
-- `high_frequency_threshold`: Number of requests from a single IP to trigger a "High Frequency" finding.
-- `path_scanning_404_threshold`: Number of 404 errors from a single IP to trigger a "Path Scanning" finding.
-- `sensitive_paths`: A list of URL paths to monitor (e.g., `/.env`, `/admin`).
-- `suspicious_user_agents`: A list of keywords to look for in User-Agents (e.g., `sqlmap`, `nikto`).
+- `high_frequency_threshold`: 单个 IP 触发“高频访问 (High Frequency)”风险点的请求数阈值。
+- `path_scanning_404_threshold`: 单个 IP 触发“路径扫描 (Path Scanning)”风险点的 404 错误数阈值。
+- `sensitive_paths`: 需要监控的敏感 URL 路径列表（例如：`/.env`, `/admin`）。
+- `suspicious_user_agents`: User-Agent 中需要识别的嫌疑关键词列表（例如：`sqlmap`, `nikto`）。
 
-### Applying Rules
+### 应用规则
 
-- **CLI**: Use the `--rules` flag:
+- **CLI**: 使用 `--rules` 标志：
   ```bash
   python -m app.cli logs.log --rules ../config/rules.yaml
   ```
-- **Docker**: The `config/rules.yaml` file is automatically mounted and used.
-- **API (Local)**: Set the `RULES_FILE` environment variable before starting the server.
+- **Docker**: `config/rules.yaml` 文件会被自动挂载并使用。
+- **API (本地)**: 在启动服务器前设置 `RULES_FILE` 环境变量。
 
 ## 当前限制
 
