@@ -1,43 +1,43 @@
 <template>
   <div class="stats-card">
     <div class="card-header">
-      <h3>Parsing Quality</h3>
+      <h3>{{ t('parse.title') }}</h3>
       <div class="parse-rate" :class="rateClass">
-        {{ (stats.parse_rate * 100).toFixed(1) }}% Success
+        {{ (stats.parse_rate * 100).toFixed(1) }}% {{ t('parse.success') }}
       </div>
     </div>
     
     <div class="stats-grid">
       <div class="stat-item">
-        <span class="label">Total Lines</span>
+        <span class="label">{{ t('parse.totalLines') }}</span>
         <span class="value">{{ stats.total_lines }}</span>
       </div>
       <div class="stat-item">
-        <span class="label">Parsed</span>
+        <span class="label">{{ t('parse.parsed') }}</span>
         <span class="value success">{{ stats.parsed_lines }}</span>
       </div>
       <div class="stat-item">
-        <span class="label">Skipped</span>
+        <span class="label">{{ t('parse.skipped') }}</span>
         <span class="value" :class="{ 'warning': stats.skipped_lines > 0 }">{{ stats.skipped_lines }}</span>
       </div>
     </div>
 
     <div class="format-info">
-      <span>Format: <strong>{{ stats.detected_format }}</strong></span>
+      <span>{{ t('parse.format') }}: <strong>{{ stats.detected_format }}</strong></span>
       <span class="separator">|</span>
-      <span>Requested: <strong>{{ stats.requested_format }}</strong></span>
+      <span>{{ t('parse.requested') }}: <strong>{{ stats.requested_format }}</strong></span>
     </div>
 
     <div v-if="stats.skipped_lines > 0" class="parse-warning">
       <span class="icon">⚠️</span>
-      <span class="text">Some lines could not be parsed. Please verify the selected log format.</span>
+      <span class="text">{{ t('parse.warning') }}</span>
     </div>
 
     <div v-if="stats.skipped_samples && stats.skipped_samples.length > 0" class="skipped-samples">
-      <h4>Skipped Line Samples</h4>
+      <h4>{{ t('parse.skippedSamples') }}</h4>
       <div v-for="sample in stats.skipped_samples" :key="sample.line_number" class="sample-item">
         <div class="sample-meta">
-          <span class="line-num">Line {{ sample.line_number }}</span>
+          <span class="line-num">{{ t('common.line') }} {{ sample.line_number }}</span>
           <span class="reason">{{ sample.reason }}</span>
         </div>
         <pre class="sample-content">{{ sample.content }}</pre>
@@ -48,6 +48,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { t } from '../i18n'
 
 const props = defineProps({
   stats: {

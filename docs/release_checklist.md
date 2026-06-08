@@ -51,6 +51,14 @@ This checklist ensures that the **AI Log Security Analyzer** is stable and ready
     - [ ] Export Analysis Summary (JSON)
     - [ ] Check CSV formatting (correct columns, escaping of special characters)
 - [ ] **Clear Current Result**: Verify "Clear Current Result" works as expected (resets UI but preserves local history).
+- [ ] **Bilingual UI (v1.7.1)**:
+    - [ ] Verify that clicking "中文" switches UI to Chinese.
+    - [ ] Verify that clicking "English" switches UI to English.
+    - [ ] Verify that the language preference persists after page refresh (via `localStorage`).
+    - [ ] Verify that all major components (Summary, Findings, Incidents, Timeline, etc.) are translated.
+    - [ ] Verify that "Report Comparison" narrative and Markdown export are correctly localized.
+    - [ ] Verify that severity levels (High/Medium/Low) and risk levels are translated.
+    - [ ] Verify that recent analyses statistics (parsed, incidents, findings) are translated.
 
 ## 5. Security & Privacy (Sanitization)
 - [ ] **IP Redaction**: Ensure public IPs are masked (e.g., `1.2.x.x`) in the sanitized report and Executive Summary.

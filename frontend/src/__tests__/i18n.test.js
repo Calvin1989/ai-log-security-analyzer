@@ -1,0 +1,62 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { currentLanguage, setLanguage, toggleLanguage, t, translateSeverity, translateRiskLevel } from '../i18n'
+
+describe('i18n tool', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    setLanguage('zh')
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('should have default language as zh', () => {
+    expect(currentLanguage.value).toBe('zh')
+  })
+
+  it('should switch language and persist to localStorage', () => {
+    setLanguage('en')
+    expect(currentLanguage.value).toBe('en')
+    expect(localStorage.getItem('ai-log-security-analyzer:language')).toBe('en')
+  })
+
+  it('should toggle language', () => {
+    expect(currentLanguage.value).toBe('zh')
+    toggleLanguage()
+    expect(currentLanguage.value).toBe('en')
+    toggleLanguage()
+    expect(currentLanguage.value).toBe('zh')
+  })
+
+  it('should translate nested keys', () => {
+    setLanguage('zh')
+    expect(t('app.title')).toBe('AI Log Security Analyzer')
+    expect(t('common.loading')).toBe('加载中...')
+
+    setLanguage('en')
+    expect(t('common.loading')).toBe('Loading...')
+  })
+
+  it('should return fallback or key if missing', () => {
+    expect(t('missing.key')).toBe('missing.key')
+    expect(t('missing.key', 'fallback text')).toBe('fallback text')
+  })
+
+  it('should translate severity correctly', () => {
+    setLanguage('zh')
+    expect(translateSeverity('critical')).toBe('严重')
+    expect(translateSeverity('high')).toBe('高危')
+
+    setLanguage('en')
+    expect(translateSeverity('critical')).toBe('Critical')
+  })
+
+  it('should translate risk level correctly', () => {
+    setLanguage('zh')
+    expect(translateRiskLevel('critical')).toBe('极高风险')
+
+    setLanguage('en')
+    expect(translateRiskLevel('critical')).toBe('Critical')
+  })
+})

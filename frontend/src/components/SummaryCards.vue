@@ -1,21 +1,21 @@
 <template>
   <section class="result-card">
-    <h2>Overview Statistics</h2>
+    <h2>{{ t('summary.title') }}</h2>
     <div class="stats-grid">
       <div class="stat-item">
-        <span class="stat-label">Total Requests</span>
+        <span class="stat-label">{{ t('summary.totalRequests') }}</span>
         <span class="stat-value">{{ summary.total_requests }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">Unique IPs</span>
+        <span class="stat-label">{{ t('summary.uniqueIps') }}</span>
         <span class="stat-value">{{ summary.unique_ips }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">4xx Errors</span>
+        <span class="stat-label">{{ t('summary.total4xx') }}</span>
         <span class="stat-value">{{ summary.total_4xx }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">5xx Errors</span>
+        <span class="stat-label">{{ t('summary.total5xx') }}</span>
         <span class="stat-value">{{ summary.total_5xx }}</span>
       </div>
     </div>
@@ -23,6 +23,8 @@
 </template>
 
 <script setup>
+import { t } from '../i18n'
+
 defineProps({
   summary: {
     type: Object,

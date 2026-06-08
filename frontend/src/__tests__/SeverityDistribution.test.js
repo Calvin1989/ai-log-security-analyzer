@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SeverityDistribution from '../components/SeverityDistribution.vue'
+import { setLanguage } from '../i18n'
 
 describe('SeverityDistribution.vue', () => {
+  beforeEach(() => {
+    setLanguage('en')
+  })
+
   it('renders correctly with given counts', () => {
     const findingSeverityCounts = { high: 2, medium: 1, low: 0 }
     const incidentSeverityCounts = { high: 1, medium: 0, low: 0 }

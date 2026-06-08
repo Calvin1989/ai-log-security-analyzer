@@ -1,30 +1,30 @@
 <template>
   <section class="result-card">
     <div class="timeline-intro">
-      <h2>Attack Timeline ({{ (timelineEvents || []).length }})</h2>
+      <h2>{{ t('timeline.title') }} ({{ (timelineEvents || []).length }})</h2>
       <p class="intro-text">
-        A chronological view of key security events to help understand the attack progression.
+        {{ t('timeline.intro') }}
       </p>
     </div>
 
     <!-- Filter Controls -->
     <div class="filter-controls">
       <div class="filter-group">
-        <label>Severity:</label>
+        <label>{{ t('common.severity') }}:</label>
         <select v-model="severityFilter" class="filter-select">
-          <option value="all">All</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+          <option value="all">{{ t('common.all') }}</option>
+          <option value="high">{{ translateSeverity('high') }}</option>
+          <option value="medium">{{ translateSeverity('medium') }}</option>
+          <option value="low">{{ translateSeverity('low') }}</option>
         </select>
       </div>
       
       <div class="filter-group">
-        <label>Source IP:</label>
-        <input 
-          v-model="ipSearch" 
-          type="text" 
-          placeholder="Search IP..." 
+        <label>{{ t('common.sourceIp') }}:</label>
+        <input
+          v-model="ipSearch"
+          type="text"
+          :placeholder="t('common.searchPlaceholder')"
           class="filter-input"
         />
       </div>
@@ -34,16 +34,16 @@
         @click="clearFilters" 
         class="clear-btn"
       >
-        Clear Filters
+        {{ t('actions.clear') }}
       </button>
 
       <div v-if="isFiltered" class="filter-stats">
-        Showing {{ filteredEvents.length }} of {{ (timelineEvents || []).length }} events
+        {{ t('timeline.showingEvents', 'Showing {filtered} of {total} events').replace('{filtered}', filteredEvents.length).replace('{total}', (timelineEvents || []).length) }}
       </div>
     </div>
 
     <div v-if="filteredEvents.length === 0" class="empty-state">
-      {{ (timelineEvents || []).length === 0 ? 'No security events recorded in the timeline.' : 'No events match your filters.' }}
+      {{ (timelineEvents || []).length === 0 ? t('timeline.emptyState') : t('timeline.noMatch') }}
     </div>
 
     <div v-else class="timeline-container">
@@ -57,7 +57,7 @@
           <div class="event-header">
             <span class="event-time">{{ event.timestamp }}</span>
             <span class="severity-badge" :data-severity="event.severity.toLowerCase()">
-              {{ event.severity.toUpperCase() }}
+              {{ translateSeverity(event.severity).toUpperCase() }}
             </span>
             <span class="event-type-badge">{{ formatEventType(event.event_type) }}</span>
             <span class="ip-badge">{{ event.source_ip }}</span>
@@ -68,13 +68,13 @@
             <p class="event-desc">{{ event.description }}</p>
             
             <div v-if="event.evidence" class="event-evidence">
-              <strong>Evidence:</strong>
+              <strong>{{ t('common.evidence') }}:</strong>
               <pre><code>{{ event.evidence }}</code></pre>
             </div>
             
             <div class="event-meta" v-if="event.related_rule_id">
-              <span class="meta-tag">Rule: {{ event.related_rule_id }}</span>
-              <span class="meta-tag" v-if="event.related_incident_id">Incident ID: {{ event.related_incident_id }}</span>
+              <span class="meta-tag">{{ t('common.rule') }}: {{ event.related_rule_id }}</span>
+              <span class="meta-tag" v-if="event.related_incident_id">ID: {{ event.related_incident_id }}</span>
             </div>
           </div>
         </div>
@@ -85,6 +85,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { t, translateSeverity } from '../i18n'
 
 const props = defineProps({
   timelineEvents: {

@@ -1,30 +1,30 @@
 <template>
   <section class="result-card">
     <div class="incidents-intro">
-      <h2>Aggregated Security Incidents ({{ incidents.length }})</h2>
+      <h2>{{ t('incidents.title') }} ({{ incidents.length }})</h2>
       <p class="intro-text">
-        Incidents are grouped from related findings to help analysts understand overall attack behavior and intent.
+        {{ t('incidents.intro') }}
       </p>
     </div>
 
     <!-- Filter Controls -->
     <div class="filter-controls">
       <div class="filter-group">
-        <label>Severity:</label>
+        <label>{{ t('common.severity') }}:</label>
         <select v-model="severityFilter" class="filter-select">
-          <option value="all">All Severities</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+          <option value="all">{{ t('incidents.allSeverities') }}</option>
+          <option value="high">{{ translateSeverity('high') }}</option>
+          <option value="medium">{{ translateSeverity('medium') }}</option>
+          <option value="low">{{ translateSeverity('low') }}</option>
         </select>
       </div>
       
       <div class="filter-group">
-        <label>Source IP:</label>
-        <input 
-          v-model="ipSearch" 
-          type="text" 
-          placeholder="Search IP..." 
+        <label>{{ t('common.sourceIp') }}:</label>
+        <input
+          v-model="ipSearch"
+          type="text"
+          :placeholder="t('common.searchPlaceholder')"
           class="filter-input"
         />
       </div>
@@ -34,11 +34,11 @@
         @click="clearFilters" 
         class="clear-btn"
       >
-        Clear Filters
+        {{ t('actions.clear') }}
       </button>
 
       <div v-if="isFiltered" class="filter-stats">
-        Showing {{ filteredIncidents.length }} of {{ incidents.length }} incidents
+        {{ t('incidents.showingIncidents', 'Showing {filtered} of {total} incidents').replace('{filtered}', filteredIncidents.length).replace('{total}', incidents.length) }}
       </div>
 
       <div class="action-group">
@@ -46,42 +46,42 @@
           @click="copyJson" 
           :disabled="filteredIncidents.length === 0"
           class="copy-btn"
-          title="Copy filtered incidents as JSON"
+          :title="t('actions.copyJson')"
         >
-          {{ copyStatus || 'Copy Filtered JSON' }}
+          {{ copyStatus ? t('common.copied') : t('actions.copyJson') }}
         </button>
         <button 
           @click="exportJson" 
           :disabled="filteredIncidents.length === 0"
           class="export-btn"
-          title="Download filtered incidents as JSON"
+          :title="t('actions.downloadJson')"
         >
-          Download JSON
+          {{ t('actions.downloadJson') }}
         </button>
         <button 
           @click="exportCsv" 
           :disabled="filteredIncidents.length === 0"
           class="export-btn"
-          title="Download filtered incidents as CSV"
+          :title="t('actions.downloadCsv')"
         >
-          Download CSV
+          {{ t('actions.downloadCsv') }}
         </button>
       </div>
     </div>
 
     <div v-if="filteredIncidents.length > 0" class="export-warning">
-      ⚠️ Raw JSON/CSV exports may contain sensitive log evidence. Review before sharing.
+      {{ t('incidents.exportWarning') }}
     </div>
 
     <div v-if="filteredIncidents.length === 0" class="empty-state">
-      {{ incidents.length === 0 ? 'No major security incidents aggregated.' : 'No incidents match your filters.' }}
+      {{ incidents.length === 0 ? t('incidents.emptyState') : t('common.noMatch') }}
     </div>
 
     <div v-else class="incidents-list">
       <div v-for="incident in filteredIncidents" :key="incident.incident_id" class="incident-item">
         <div class="incident-header">
           <span class="severity-badge" :data-severity="incident.severity.toLowerCase()">
-            {{ incident.severity.toUpperCase() }}
+            {{ translateSeverity(incident.severity).toUpperCase() }}
           </span>
           <h3>{{ incident.title }}</h3>
           <span class="ip-badge">{{ incident.source_ip }}</span>
@@ -91,12 +91,12 @@
           <p class="summary">{{ incident.summary }}</p>
           
           <div class="meta-info">
-            <span><strong>Confidence:</strong> {{ incident.confidence.toUpperCase() }}</span>
-            <span><strong>Rules Involved:</strong> {{ incident.related_rule_ids.join(', ') }}</span>
+            <span><strong>{{ t('common.confidence') }}:</strong> {{ translateRiskLevel(incident.confidence).toUpperCase() }}</span>
+            <span><strong>{{ t('incidents.rulesInvolved') }}:</strong> {{ incident.related_rule_ids.join(', ') }}</span>
           </div>
 
           <div v-if="incident.recommendations.length > 0" class="recommendations">
-            <strong>Recommended Actions:</strong>
+            <strong>{{ t('incidents.recommendedActions') }}:</strong>
             <ul>
               <li v-for="(rec, index) in incident.recommendations" :key="index">{{ rec }}</li>
             </ul>
@@ -104,13 +104,13 @@
 
           <div v-if="incident.evidence.length > 0" class="evidence-preview">
             <div class="evidence-header">
-              <strong>Evidence Samples:</strong>
+              <strong>{{ t('incidents.evidenceSamples') }}:</strong>
               <button 
                 v-if="incident.evidence.length > 2" 
                 @click="toggleEvidence(incident.incident_id)" 
                 class="toggle-evidence-btn"
               >
-                {{ expandedIncidents.has(incident.incident_id) ? 'Show less' : 'Show all evidence' }}
+                {{ expandedIncidents.has(incident.incident_id) ? t('actions.showLess') : t('actions.showAllEvidence') }}
               </button>
             </div>
             <ul>
@@ -128,6 +128,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { downloadJson, downloadTextFile, convertIncidentsToCsv } from '../utils/exportUtils'
+import { t, translateSeverity, translateRiskLevel } from '../i18n'
 
 const props = defineProps({
   incidents: {

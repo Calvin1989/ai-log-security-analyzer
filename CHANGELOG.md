@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.7.1-local] - 2026-06-08
+### Added
+- **Frontend Bilingual UI Toggle**: Support for switching between Chinese and English UI.
+- **Persistent Language Preference**: User's language choice is saved in browser `localStorage`.
+- **Zero-Dependency i18n**: Lightweight, custom i18n implementation without third-party libraries.
+- **Refined Comparison Narrative**: Localized narrative summaries in Report Comparison based on selected language.
+
 ## [v1.7-local] - 2026-06-08
 ### Added
 - **Report Comparison**: Compare two analysis results from the Recent Analyses history.

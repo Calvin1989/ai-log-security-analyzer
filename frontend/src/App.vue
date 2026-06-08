@@ -1,8 +1,9 @@
 <template>
   <div class="container">
     <header>
-      <h1>AI Log Security Analyzer</h1>
-      <p>Upload your Nginx access logs for security analysis</p>
+      <h1>{{ t('app.title') }}</h1>
+      <p>{{ t('app.subtitle') }}</p>
+      <LanguageToggle />
     </header>
 
     <main>
@@ -13,7 +14,7 @@
 
       <div class="main-actions" v-if="result || error || selectedFile">
         <button @click="clearCurrentResult" class="clear-current-btn">
-          Clear Current Result
+          {{ t('app.clearCurrentResult') }}
         </button>
       </div>
 
@@ -32,49 +33,49 @@
       </div>
 
       <div v-if="rulesError" class="mini-warning">
-        Note: Could not load rule configuration ({{ rulesError }}). Using defaults.
+        {{ t('app.rulesError', 'Note: Could not load rule configuration ({error}). Using defaults.').replace('{error}', rulesError) }}
       </div>
 
       <div v-if="error" class="error-msg">
-        Error: {{ error }}
+        {{ t('app.error', 'Error: {error}').replace('{error}', error) }}
       </div>
 
-      <div v-if="result" class="results-container">
-        <SummaryCards :summary="result.summary" />
+      <div v-if="displayResult" class="results-container">
+        <SummaryCards :summary="displayResult.summary" />
 
-        <ExecutiveSummary :summary="result.executive_summary" />
+        <ExecutiveSummary :summary="displayResult.executive_summary" />
 
         <SeverityDistribution 
-          :findingSeverityCounts="result.summary.finding_severity_counts"
-          :incidentSeverityCounts="result.summary.incident_severity_counts"
+          :findingSeverityCounts="displayResult.summary.finding_severity_counts"
+          :incidentSeverityCounts="displayResult.summary.incident_severity_counts"
         />
 
-        <TimelineView :timelineEvents="result.timeline_events || []" />
+        <TimelineView :timelineEvents="displayResult.timeline_events || []" />
 
-        <ParseStatsCard :stats="result.parse_stats" />
+        <ParseStatsCard :stats="displayResult.parse_stats" />
 
-        <IncidentsList :incidents="result.incidents" />
+        <IncidentsList :incidents="displayResult.incidents" />
 
         <div class="side-by-side">
           <TopList 
-            title="Top 5 IPs" 
-            :items="result.summary.top_ips" 
-            itemKey="ip" 
-            itemLabel="IP Address" 
+            :title="t('app.topIps')"
+            :items="displayResult.summary.top_ips"
+            itemKey="ip"
+            :itemLabel="t('app.ipAddress')"
           />
-          <TopList 
-            title="Top 5 Paths" 
-            :items="result.summary.top_paths" 
-            itemKey="path" 
-            itemLabel="Path" 
+          <TopList
+            :title="t('app.topPaths')"
+            :items="displayResult.summary.top_paths"
+            itemKey="path"
+            :itemLabel="t('app.path')"
           />
         </div>
 
-        <FindingsList :findings="result.findings" />
+        <FindingsList :findings="displayResult.findings" />
 
-        <MarkdownReport 
-          :result="result"
-          :reportMarkdown="result.report_markdown" 
+        <MarkdownReport
+          :result="displayResult"
+          :reportMarkdown="displayResult.report_markdown"
           :file="selectedFile"
           :sanitizing="sanitizingReport"
           :sanitizedAvailable="isSanitizedAvailable"
@@ -86,6 +87,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { t, currentLanguage } from './i18n'
+import { localizeAnalysisForDisplay } from './utils/localizedAnalysis'
+import LanguageToggle from './components/LanguageToggle.vue'
 import { useAnalysisState } from './composables/useAnalysisState'
 import FileUpload from './components/FileUpload.vue'
 import SummaryCards from './components/SummaryCards.vue'
@@ -117,6 +122,10 @@ const {
   handleDownloadSanitized,
   isSanitizedAvailable
 } = useAnalysisState()
+
+const displayResult = computed(() => {
+  return localizeAnalysisForDisplay(result.value, currentLanguage.value)
+})
 </script>
 
 <style scoped>

@@ -1,0 +1,468 @@
+import { ref, computed } from 'vue'
+
+const STORAGE_KEY = 'ai-log-security-analyzer:language'
+const DEFAULT_LANG = 'zh'
+
+const currentLanguage = ref(localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG)
+
+const messages = {
+  zh: {
+    app: {
+      title: "AI Log Security Analyzer",
+      subtitle: "上传 Nginx 访问日志进行安全分析",
+      clearCurrentResult: "清除当前结果",
+      rulesError: "注意：无法加载规则配置 ({error})。将使用默认配置。",
+      error: "错误：{error}",
+      topIps: "Top 5 IP",
+      ipAddress: "IP 地址",
+      topPaths: "Top 5 路径",
+      path: "路径"
+    },
+    severity: {
+      critical: "严重",
+      high: "高危",
+      medium: "中危",
+      low: "低危",
+      info: "提示",
+      informational: "提示"
+    },
+    riskLevel: {
+      critical: "极高风险",
+      high: "高风险",
+      medium: "中等风险",
+      low: "低风险",
+      safe: "安全",
+      unknown: "未知"
+    },
+    actions: {
+      upload: "上传",
+      download: "下载",
+      clear: "清除",
+      copy: "复制",
+      compare: "对比",
+      view: "查看",
+      analyze: "分析",
+      analyzing: "分析中...",
+      downloadMd: "下载 MD",
+      downloadJson: "下载 JSON",
+      downloadCsv: "下载 CSV",
+      copyJson: "复制 JSON",
+      hidePreview: "隐藏预览",
+      showPreview: "显示预览",
+      showLess: "收起",
+      showAll: "显示全部",
+      showAllEvidence: "显示全部证据",
+      showAllMatchedValues: "显示所有匹配值"
+    },
+    common: {
+      loading: "加载中...",
+      noData: "暂无数据",
+      emptyState: "尚未分析任何文件",
+      count: "数量",
+      severity: "严重程度",
+      rule: "规则",
+      all: "全部",
+      search: "搜索",
+      searchPlaceholder: "搜索...",
+      sourceIp: "源 IP",
+      line: "行",
+      reason: "原因",
+      description: "描述",
+      recommendation: "建议",
+      evidence: "证据",
+      more: "更多",
+      confidence: "置信度",
+      fields: "字段",
+      values: "值",
+      status: "状态",
+      timestamp: "时间戳",
+      copied: "已复制！",
+      copyFailed: "复制失败"
+    },
+    upload: {
+      chooseFile: "选择 .log 或 .txt 文件",
+      logFormat: "日志格式",
+      autoDetect: "自动检测"
+    },
+    history: {
+      title: "最近的分析",
+      clearHistory: "清除历史记录",
+      emptyState: "在此浏览器中未找到最近的分析记录。",
+      parsed: "已解析",
+      incidents: "个安全事件",
+      findings: "个风险点",
+      skipped: "个跳过",
+      sanitizedCached: "已缓存脱敏结果"
+    },
+    summary: {
+      title: "概览统计",
+      totalRequests: "总请求数",
+      uniqueIps: "唯一 IP 数",
+      total4xx: "4xx 错误",
+      total5xx: "5xx 错误"
+    },
+    executive: {
+      title: "执行摘要 - Web 日志安全分析",
+      keyMetrics: "核心指标",
+      topRisks: "主要风险",
+      keyAffectedIps: "受影响的主要 IP",
+      noneDetected: "未检测到",
+      recommendedNextSteps: "推荐的后续行动",
+      methodology: "分析方法",
+      overallRiskLevel: "整体风险等级"
+    },
+    distribution: {
+      title: "严重程度分布",
+      findingSeverity: "风险点严重程度",
+      incidentSeverity: "安全事件严重程度"
+    },
+    timeline: {
+      title: "攻击时间轴",
+      intro: "按时间顺序排列的关键安全事件，有助于理解攻击过程。",
+      showingEvents: "显示 {total} 个事件中的 {filtered} 个",
+      emptyState: "时间轴中没有记录安全事件。",
+      noMatch: "没有匹配筛选条件的事件。"
+    },
+    parse: {
+      title: "解析质量",
+      success: "成功",
+      totalLines: "总行数",
+      parsed: "已解析",
+      skipped: "已跳过",
+      format: "格式",
+      requested: "请求格式",
+      warning: "部分行无法解析。请验证选择的日志格式。",
+      skippedSamples: "跳过的行示例"
+    },
+    incidents: {
+      title: "聚合的安全事件",
+      intro: "安全事件由相关风险点聚合而成，帮助分析人员了解整体攻击行为和意图。",
+      allSeverities: "所有严重程度",
+      showingIncidents: "显示 {total} 个安全事件中的 {filtered} 个",
+      exportWarning: "⚠️ 原始 JSON/CSV 导出可能包含敏感的日志证据。共享前请检查。",
+      emptyState: "未聚合到主要安全事件。",
+      rulesInvolved: "涉及规则",
+      recommendedActions: "推荐操作",
+      evidenceSamples: "证据示例"
+    },
+    findings: {
+      title: "安全风险点",
+      allRules: "所有规则",
+      searchPlaceholder: "标题、描述、证据...",
+      showingFindings: "显示 {total} 个风险点中的 {filtered} 个",
+      emptyState: "未检测到风险。",
+      noMatch: "没有匹配筛选条件的风险点。",
+      matchedDetails: "匹配详情",
+      fields: "字段",
+      values: "值"
+    },
+    report: {
+      title: "Markdown 报告",
+      downloadReport: "下载报告 (.md)",
+      downloadSanitized: "下载脱敏报告 (.md)",
+      downloadSummary: "下载摘要 (.json)",
+      warningBanner: "脱敏下载需要原始文件。请重新上传日志或使用带有缓存脱敏结果的历史记录。",
+      infoBanner: "脱敏报告会屏蔽 IP 地址和敏感参数，以便更安全地共享。外部使用前请检查。"
+    },
+    ruleConfig: {
+      title: "当前生效的规则配置",
+      highFrequencyThreshold: "高频访问阈值",
+      requests: "个请求",
+      pathScanningThreshold: "路径扫描阈值",
+      sensitivePaths: "敏感路径",
+      suspiciousUserAgents: "可疑 User-Agent"
+    },
+    comparison: {
+      title: "报告对比",
+      downloadReport: "下载对比报告 (Markdown)",
+      atLeastTwo: "需要至少两个历史分析记录才能进行对比。目前仅有 {count} 条记录。",
+      baseline: "基准报告 (Baseline)",
+      selectBaseline: "请选择基准报告",
+      target: "目标报告 (Target)",
+      selectTarget: "请选择目标报告",
+      startComparison: "开始对比",
+      riskScoreDelta: "风险评分变化",
+      findingsDelta: "风险点变化",
+      incidentsDelta: "安全事件变化",
+      parseRateDelta: "解析成功率变化",
+      severityDistributionDelta: "严重程度分布变化",
+      findingsChanges: "风险点变更 (Findings)",
+      incidentsChanges: "安全事件变更 (Incidents)",
+      added: "新增",
+      removed: "消失",
+      andOthers: "... 以及另外 {count} 个",
+      noChanges: "无变化",
+      findingsNoChanges: "风险点无变化",
+      incidentsNoChanges: "安全事件无变化",
+      riskUp: "安全风险显著上升",
+      riskDown: "安全风险有所下降",
+      riskStable: "安全风险保持稳定",
+      overview: "对比分析显示，目标报告相对于基准报告，风险评分{action}了 {delta} 分。",
+      increased: "增加",
+      decreased: "减少",
+      scoreChange: "风险评分变化了 {delta} 分。",
+      findingsAdded: "新增了 {count} 个风险点。",
+      incidentsAdded: "新增了 {count} 个安全事件。",
+      findingsRemoved: "减少了 {count} 个旧风险点。",
+      mdTitle: "安全分析对比报告",
+      mdOverview: "概览",
+      mdMetrics: "核心指标变化",
+      mdSeverity: "严重程度分布变化",
+      mdFindings: "风险点变更 (Findings)",
+      mdIncidents: "安全事件变更 (Incidents)",
+      mdConclusion: "结论与建议",
+      mdConclusionSummary: "变化总结",
+      mdActions: "推荐后续行动",
+      mdGeneratedAt: "报告生成于"
+    }
+  },
+  en: {
+    app: {
+      title: "AI Log Security Analyzer",
+      subtitle: "Upload your Nginx access logs for security analysis",
+      clearCurrentResult: "Clear Current Result",
+      rulesError: "Note: Could not load rule configuration ({error}). Using defaults.",
+      error: "Error: {error}",
+      topIps: "Top 5 IPs",
+      ipAddress: "IP Address",
+      topPaths: "Top 5 Paths",
+      path: "Path"
+    },
+    severity: {
+      critical: "Critical",
+      high: "High",
+      medium: "Medium",
+      low: "Low",
+      info: "Info",
+      informational: "Info"
+    },
+    riskLevel: {
+      critical: "Critical",
+      high: "High",
+      medium: "Medium",
+      low: "Low",
+      safe: "Safe",
+      unknown: "Unknown"
+    },
+    actions: {
+      upload: "Upload",
+      download: "Download",
+      clear: "Clear",
+      copy: "Copy",
+      compare: "Compare",
+      view: "View",
+      analyze: "Analyze",
+      analyzing: "Analyzing...",
+      downloadMd: "Download MD",
+      downloadJson: "Download JSON",
+      downloadCsv: "Download CSV",
+      copyJson: "Copy JSON",
+      hidePreview: "Hide Preview",
+      showPreview: "Show Preview",
+      showLess: "Show less",
+      showAll: "Show all",
+      showAllEvidence: "Show all evidence",
+      showAllMatchedValues: "Show all matched values"
+    },
+    common: {
+      loading: "Loading...",
+      noData: "No data available",
+      emptyState: "No files analyzed yet",
+      count: "Count",
+      severity: "Severity",
+      rule: "Rule",
+      all: "All",
+      search: "Search",
+      searchPlaceholder: "Search...",
+      sourceIp: "Source IP",
+      line: "Line",
+      reason: "Reason",
+      description: "Description",
+      recommendation: "Recommendation",
+      evidence: "Evidence",
+      more: "more",
+      confidence: "Confidence",
+      fields: "Fields",
+      values: "Values",
+      status: "Status",
+      timestamp: "Timestamp",
+      copied: "Copied!",
+      copyFailed: "Copy failed"
+    },
+    upload: {
+      chooseFile: "Choose a .log or .txt file",
+      logFormat: "Log Format",
+      autoDetect: "Auto Detect"
+    },
+    history: {
+      title: "Recent Analyses",
+      clearHistory: "Clear History",
+      emptyState: "No recent analysis records found in this browser.",
+      parsed: "parsed",
+      incidents: "incidents",
+      findings: "findings",
+      skipped: "skipped",
+      sanitizedCached: "Sanitized cached"
+    },
+    summary: {
+      title: "Overview Statistics",
+      totalRequests: "Total Requests",
+      uniqueIps: "Unique IPs",
+      total4xx: "4xx Errors",
+      total5xx: "5xx Errors"
+    },
+    executive: {
+      title: "Executive Summary - Web Log Security Analysis",
+      keyMetrics: "Key Metrics",
+      topRisks: "Top Risks",
+      keyAffectedIps: "Key Affected IPs",
+      noneDetected: "None detected",
+      recommendedNextSteps: "Recommended Next Steps",
+      methodology: "Methodology",
+      overallRiskLevel: "Overall Risk Level"
+    },
+    distribution: {
+      title: "Severity Distribution",
+      findingSeverity: "Finding Severity",
+      incidentSeverity: "Incident Severity"
+    },
+    timeline: {
+      title: "Attack Timeline",
+      intro: "A chronological view of key security events to help understand the attack progression.",
+      showingEvents: "Showing {filtered} of {total} events",
+      emptyState: "No security events recorded in the timeline.",
+      noMatch: "No events match your filters."
+    },
+    parse: {
+      title: "Parsing Quality",
+      success: "Success",
+      totalLines: "Total Lines",
+      parsed: "Parsed",
+      skipped: "Skipped",
+      format: "Format",
+      requested: "Requested",
+      warning: "Some lines could not be parsed. Please verify the selected log format.",
+      skippedSamples: "Skipped Line Samples"
+    },
+    incidents: {
+      title: "Aggregated Security Incidents",
+      intro: "Incidents are grouped from related findings to help analysts understand overall attack behavior and intent.",
+      allSeverities: "All Severities",
+      showingIncidents: "Showing {filtered} of {total} incidents",
+      exportWarning: "⚠️ Raw JSON/CSV exports may contain sensitive log evidence. Review before sharing.",
+      emptyState: "No major security incidents aggregated.",
+      rulesInvolved: "Rules Involved",
+      recommendedActions: "Recommended Actions",
+      evidenceSamples: "Evidence Samples"
+    },
+    findings: {
+      title: "Security Findings",
+      allRules: "All Rules",
+      searchPlaceholder: "Title, desc, evidence...",
+      showingFindings: "Showing {filtered} of {total}",
+      emptyState: "No risks detected.",
+      noMatch: "No findings match your filters.",
+      matchedDetails: "Matched Details",
+      fields: "Fields",
+      values: "Values"
+    },
+    report: {
+      title: "Markdown Report",
+      downloadReport: "Download Report (.md)",
+      downloadSanitized: "Download Sanitized (.md)",
+      downloadSummary: "Download Summary (.json)",
+      warningBanner: "Sanitized download requires the original file. Please re-upload the log or use a history entry with cached sanitized result.",
+      infoBanner: "Sanitized report masks IP addresses and sensitive parameters for safer sharing. Please review before external use."
+    },
+    ruleConfig: {
+      title: "Active Rule Configuration",
+      highFrequencyThreshold: "High Frequency Threshold",
+      requests: "requests",
+      pathScanningThreshold: "Path Scanning Threshold",
+      sensitivePaths: "Sensitive Paths",
+      suspiciousUserAgents: "Suspicious User-Agents"
+    },
+    comparison: {
+      title: "Report Comparison",
+      downloadReport: "Download Comparison Report (Markdown)",
+      atLeastTwo: "Need at least two history records to compare. Currently only {count} records.",
+      baseline: "Baseline Report",
+      selectBaseline: "Please select baseline",
+      target: "Target Report",
+      selectTarget: "Please select target",
+      startComparison: "Start Comparison",
+      riskScoreDelta: "Risk Score Change",
+      findingsDelta: "Findings Change",
+      incidentsDelta: "Incidents Change",
+      parseRateDelta: "Parse Rate Change",
+      severityDistributionDelta: "Severity Distribution Change",
+      findingsChanges: "Findings Changes",
+      incidentsChanges: "Incidents Changes",
+      added: "Added",
+      removed: "Removed",
+      andOthers: "... and {count} others",
+      noChanges: "No changes",
+      findingsNoChanges: "No findings changes",
+      incidentsNoChanges: "No incidents changes",
+      riskUp: "Security risk increased significantly",
+      riskDown: "Security risk decreased slightly",
+      riskStable: "Security risk remained stable",
+      overview: "Comparison shows risk score {action} by {delta} points compared to baseline.",
+      increased: "increased",
+      decreased: "decreased",
+      scoreChange: "Risk score changed by {delta} points.",
+      findingsAdded: "Added {count} new findings.",
+      incidentsAdded: "Added {count} new incidents.",
+      findingsRemoved: "Removed {count} old findings.",
+      mdTitle: "Security Analysis Comparison Report",
+      mdOverview: "Overview",
+      mdMetrics: "Key Metrics Changes",
+      mdSeverity: "Severity Distribution Changes",
+      mdFindings: "Findings Changes",
+      mdIncidents: "Incidents Changes",
+      mdConclusion: "Conclusion & Recommendations",
+      mdConclusionSummary: "Summary of Changes",
+      mdActions: "Recommended Actions",
+      mdGeneratedAt: "Report generated at"
+    }
+  }
+}
+
+export function setLanguage(lang) {
+  if (messages[lang]) {
+    currentLanguage.value = lang
+    localStorage.setItem(STORAGE_KEY, lang)
+  }
+}
+
+export function toggleLanguage() {
+  const nextLang = currentLanguage.value === 'zh' ? 'en' : 'zh'
+  setLanguage(nextLang)
+}
+
+export function t(key, fallback = '') {
+  const keys = key.split('.')
+  let value = messages[currentLanguage.value]
+
+  for (const k of keys) {
+    if (value && value[k]) {
+      value = value[k]
+    } else {
+      return fallback || key
+    }
+  }
+
+  return value
+}
+
+export function translateSeverity(severity) {
+  const s = severity?.toLowerCase()
+  return t(`severity.${s}`, severity)
+}
+
+export function translateRiskLevel(level) {
+  const l = level?.toLowerCase()
+  return t(`riskLevel.${l}`, level)
+}
+
+export { currentLanguage }

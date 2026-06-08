@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TimelineView from '../components/TimelineView.vue'
+import { setLanguage } from '../i18n'
 
 describe('TimelineView.vue', () => {
+  beforeEach(() => {
+    setLanguage('en')
+  })
+
   const mockEvents = [
     {
       event_id: 'ev1',

@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ParseStatsCard from '../components/ParseStatsCard.vue'
+import { setLanguage } from '../i18n'
 
 describe('ParseStatsCard', () => {
+  beforeEach(() => {
+    setLanguage('en')
+  })
+
   const defaultStats = {
     total_lines: 100,
     parsed_lines: 95,

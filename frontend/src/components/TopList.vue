@@ -5,7 +5,7 @@
       <thead>
         <tr>
           <th>{{ itemLabel }}</th>
-          <th>Count</th>
+          <th>{{ t('common.count') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -19,6 +19,8 @@
 </template>
 
 <script setup>
+import { t } from '../i18n'
+
 defineProps({
   title: String,
   items: {

@@ -1,20 +1,20 @@
 <template>
   <section class="result-card">
     <div class="header-with-action">
-      <h2>Markdown Report</h2>
+      <h2>{{ t('report.title') }}</h2>
       <div class="button-group">
         <button 
           @click="showPreview = !showPreview" 
           class="toggle-btn"
         >
-          {{ showPreview ? 'Hide Preview' : 'Show Preview' }}
+          {{ showPreview ? t('actions.hidePreview') : t('actions.showPreview') }}
         </button>
-        <button 
-          v-if="reportMarkdown" 
-          @click="downloadRawReport" 
+        <button
+          v-if="localizedReport"
+          @click="downloadLocalizedReport"
           class="download-btn raw"
         >
-          Download Report (.md)
+          {{ t('report.downloadReport') }}
         </button>
         <button 
           v-if="reportMarkdown" 
@@ -22,34 +22,36 @@
           :disabled="sanitizing || !sanitizedAvailable"
           class="download-btn sanitized"
         >
-          {{ sanitizing ? 'Processing...' : 'Download Sanitized (.md)' }}
+          {{ sanitizing ? t('actions.processing') : t('report.downloadSanitized') }}
         </button>
         <button 
           v-if="result" 
           @click="downloadSummaryJson" 
           class="download-btn summary"
-          title="Download summary metrics as JSON"
+          :title="t('report.downloadSummary')"
         >
-          Download Summary (.json)
+          {{ t('report.downloadSummary') }}
         </button>
       </div>
     </div>
     
     <div v-if="!sanitizedAvailable" class="warning-banner">
-      Sanitized download requires the original file. Please re-upload the log or use a history entry with cached sanitized result.
+      {{ t('report.warningBanner') }}
     </div>
 
     <div class="info-banner">
-      Sanitized report masks IP addresses and sensitive parameters for safer sharing. Please review before external use.
+      {{ t('report.infoBanner') }}
     </div>
 
-    <pre v-if="showPreview" class="report-preview">{{ reportMarkdown }}</pre>
+    <pre v-if="showPreview" class="report-preview">{{ localizedReport }}</pre>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { downloadJson, buildAnalysisSummaryExport } from '../utils/exportUtils'
+import { t, currentLanguage } from '../i18n'
+import { buildLocalizedMarkdownReport } from '../utils/localizedReport'
 
 const props = defineProps({
   result: {
@@ -72,6 +74,11 @@ const props = defineProps({
 
 const showPreview = ref(true)
 
+const localizedReport = computed(() => {
+  if (currentLanguage.value === 'en') return props.reportMarkdown;
+  return buildLocalizedMarkdownReport(props.result, currentLanguage.value);
+})
+
 defineEmits(['download-sanitized'])
 
 const triggerDownload = (content, filename) => {
@@ -86,9 +93,9 @@ const triggerDownload = (content, filename) => {
   URL.revokeObjectURL(url)
 }
 
-const downloadRawReport = () => {
-  if (!props.reportMarkdown) return
-  triggerDownload(props.reportMarkdown, 'security_report.md')
+const downloadLocalizedReport = () => {
+  if (!localizedReport.value) return
+  triggerDownload(localizedReport.value, 'security_report.md')
 }
 
 const downloadSummaryJson = () => {

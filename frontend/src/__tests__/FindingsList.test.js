@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FindingsList from '../components/FindingsList.vue'
+import { setLanguage } from '../i18n'
 
 describe('FindingsList.vue', () => {
+  beforeEach(() => {
+    setLanguage('en')
+  })
+
   const mockFindings = [
     {
       rule_id: 'high_frequency_ip',

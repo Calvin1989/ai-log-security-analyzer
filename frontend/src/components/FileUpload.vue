@@ -8,14 +8,14 @@
         @change="onFileChange"
       />
       <label for="logFile" class="file-label">
-        {{ internalSelectedFile ? internalSelectedFile.name : 'Choose a .log or .txt file' }}
+        {{ internalSelectedFile ? internalSelectedFile.name : t('upload.chooseFile') }}
       </label>
     </div>
 
     <div class="options-group">
-      <label for="logFormat">Log Format:</label>
+      <label for="logFormat">{{ t('upload.logFormat') }}:</label>
       <select id="logFormat" v-model="logFormat" class="format-select">
-        <option value="auto">Auto Detect</option>
+        <option value="auto">{{ t('upload.autoDetect') }}</option>
         <option value="nginx">Nginx</option>
         <option value="apache">Apache</option>
       </select>
@@ -26,13 +26,14 @@
       :disabled="!internalSelectedFile || loading"
       class="analyze-btn"
     >
-      {{ loading ? 'Analyzing...' : 'Analyze' }}
+      {{ loading ? t('actions.analyzing') : t('actions.analyze') }}
     </button>
   </section>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { t } from '../i18n'
 
 defineProps({
   loading: {

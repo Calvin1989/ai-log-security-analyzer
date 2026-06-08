@@ -1,15 +1,15 @@
 <template>
   <div class="severity-distribution">
-    <h2>Severity Distribution</h2>
+    <h2>{{ t('distribution.title') }}</h2>
     <div class="distribution-grid">
       <!-- Findings Distribution -->
       <div class="distribution-card">
-        <h3>Finding Severity</h3>
+        <h3>{{ t('distribution.findingSeverity') }}</h3>
         <div class="severity-bars">
           <div v-for="(count, severity) in findingCounts" :key="severity" class="severity-item">
             <div class="severity-label">
               <span class="dot" :class="severity"></span>
-              {{ capitalize(severity) }}
+              {{ translateSeverity(severity) }}
             </div>
             <div class="bar-container">
               <div 
@@ -25,12 +25,12 @@
 
       <!-- Incidents Distribution -->
       <div class="distribution-card">
-        <h3>Incident Severity</h3>
+        <h3>{{ t('distribution.incidentSeverity') }}</h3>
         <div class="severity-bars">
           <div v-for="(count, severity) in incidentCounts" :key="severity" class="severity-item">
             <div class="severity-label">
               <span class="dot" :class="severity"></span>
-              {{ capitalize(severity) }}
+              {{ translateSeverity(severity) }}
             </div>
             <div class="bar-container">
               <div 
@@ -49,6 +49,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { t, translateSeverity } from '../i18n'
 
 const props = defineProps({
   findingSeverityCounts: {
@@ -80,8 +81,6 @@ const getPercentage = (count, total) => {
   if (total === 0) return 0
   return (count / total) * 100
 }
-
-const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1)
 </script>
 
 <style scoped>

@@ -1,25 +1,25 @@
 <template>
   <section class="comparison-container">
     <div class="comparison-header">
-      <h3>报告对比 (Report Comparison)</h3>
+      <h3>{{ t('comparison.title') }}</h3>
       <div class="header-actions">
         <button v-if="comparison" @click="downloadMarkdown" class="download-btn">
-          下载对比报告 (Markdown)
+          {{ t('comparison.downloadReport') }}
         </button>
       </div>
     </div>
 
     <!-- Selection UI -->
     <div v-if="history.length < 2" class="empty-state">
-      需要至少两个历史分析记录才能进行对比。目前仅有 {{ history.length }} 条记录。
+      {{ t('comparison.atLeastTwo').replace('{count}', history.length) }}
     </div>
 
     <div v-else class="selection-ui">
       <div class="selector-group">
         <div class="selector">
-          <label>基准报告 (Baseline):</label>
+          <label>{{ t('comparison.baseline') }}:</label>
           <select v-model="baseId">
-            <option disabled value="">请选择基准报告</option>
+            <option disabled value="">{{ t('comparison.selectBaseline') }}</option>
             <option v-for="record in history" :key="'base-' + record.id" :value="record.id">
               {{ record.file_name }} ({{ formatDate(record.analyzed_at) }})
             </option>
@@ -27,9 +27,9 @@
         </div>
 
         <div class="selector">
-          <label>目标报告 (Target):</label>
+          <label>{{ t('comparison.target') }}:</label>
           <select v-model="targetId">
-            <option disabled value="">请选择目标报告</option>
+            <option disabled value="">{{ t('comparison.selectTarget') }}</option>
             <option v-for="record in history" :key="'target-' + record.id" :value="record.id">
               {{ record.file_name }} ({{ formatDate(record.analyzed_at) }})
             </option>
@@ -37,7 +37,7 @@
         </div>
 
         <button @click="performComparison" :disabled="!baseId || !targetId || baseId === targetId" class="compare-btn">
-          开始对比
+          {{ t('comparison.startComparison') }}
         </button>
       </div>
     </div>
@@ -52,28 +52,28 @@
 
       <div class="delta-cards">
         <div class="delta-card" :class="{ 'risk-up': comparison.summary.riskScoreDelta > 0, 'risk-down': comparison.summary.riskScoreDelta < 0 }">
-          <div class="delta-label">风险评分变化</div>
+          <div class="delta-label">{{ t('comparison.riskScoreDelta') }}</div>
           <div class="delta-value">{{ comparison.summary.riskScoreDelta > 0 ? '+' : '' }}{{ comparison.summary.riskScoreDelta }}</div>
         </div>
         <div class="delta-card">
-          <div class="delta-label">风险点变化</div>
+          <div class="delta-label">{{ t('comparison.findingsDelta') }}</div>
           <div class="delta-value">{{ comparison.summary.totalFindingsDelta > 0 ? '+' : '' }}{{ comparison.summary.totalFindingsDelta }}</div>
         </div>
         <div class="delta-card">
-          <div class="delta-label">安全事件变化</div>
+          <div class="delta-label">{{ t('comparison.incidentsDelta') }}</div>
           <div class="delta-value">{{ comparison.summary.totalIncidentsDelta > 0 ? '+' : '' }}{{ comparison.summary.totalIncidentsDelta }}</div>
         </div>
         <div class="delta-card">
-          <div class="delta-label">解析成功率变化</div>
+          <div class="delta-label">{{ t('comparison.parseRateDelta') }}</div>
           <div class="delta-value">{{ comparison.summary.parseRateDelta > 0 ? '+' : '' }}{{ comparison.summary.parseRateDelta.toFixed(1) }}%</div>
         </div>
       </div>
 
       <div class="severity-grid">
-        <h4>严重程度分布变化</h4>
+        <h4>{{ t('comparison.severityDistributionDelta') }}</h4>
         <div class="severity-items">
           <div v-for="s in comparison.severityChanges" :key="s.severity" class="severity-item">
-            <span class="sev-tag" :class="s.severity">{{ s.severity }}</span>
+            <span class="sev-tag" :class="s.severity">{{ translateSeverity(s.severity) }}</span>
             <span class="sev-counts">{{ s.baseCount }} &rarr; {{ s.targetCount }}</span>
             <span class="sev-delta" :class="{ 'plus': s.delta > 0, 'minus': s.delta < 0 }">
               ({{ s.delta > 0 ? '+' : '' }}{{ s.delta }})
@@ -84,55 +84,55 @@
 
       <div class="changes-grid">
         <div class="change-section">
-          <h4>风险点变更 (Findings)</h4>
+          <h4>{{ t('comparison.findingsChanges') }}</h4>
           <div class="change-list">
             <div v-if="comparison.findingChanges.added.length > 0" class="change-group added">
-              <h5>新增 ({{ comparison.findingChanges.added.length }})</h5>
+              <h5>{{ t('comparison.added') }} ({{ comparison.findingChanges.added.length }})</h5>
               <ul>
                 <li v-for="(f, i) in comparison.findingChanges.added.slice(0, 5)" :key="'f-add-'+i">
                   <span class="sev-dot" :class="f.severity"></span> {{ f.title }}
                 </li>
-                <li v-if="comparison.findingChanges.added.length > 5" class="more">... 以及另外 {{ comparison.findingChanges.added.length - 5 }} 个</li>
+                <li v-if="comparison.findingChanges.added.length > 5" class="more">{{ t('comparison.andOthers').replace('{count}', comparison.findingChanges.added.length - 5) }}</li>
               </ul>
             </div>
             <div v-if="comparison.findingChanges.removed.length > 0" class="change-group removed">
-              <h5>消失 ({{ comparison.findingChanges.removed.length }})</h5>
+              <h5>{{ t('comparison.removed') }} ({{ comparison.findingChanges.removed.length }})</h5>
               <ul>
                 <li v-for="(f, i) in comparison.findingChanges.removed.slice(0, 5)" :key="'f-rem-'+i">
                   <span class="sev-dot" :class="f.severity"></span> {{ f.title }}
                 </li>
-                <li v-if="comparison.findingChanges.removed.length > 5" class="more">... 以及另外 {{ comparison.findingChanges.removed.length - 5 }} 个</li>
+                <li v-if="comparison.findingChanges.removed.length > 5" class="more">{{ t('comparison.andOthers').replace('{count}', comparison.findingChanges.removed.length - 5) }}</li>
               </ul>
             </div>
             <div v-if="comparison.findingChanges.added.length === 0 && comparison.findingChanges.removed.length === 0" class="no-changes">
-              风险点无变化
+              {{ t('comparison.findingsNoChanges') }}
             </div>
           </div>
         </div>
 
         <div class="change-section">
-          <h4>安全事件变更 (Incidents)</h4>
+          <h4>{{ t('comparison.incidentsChanges') }}</h4>
           <div class="change-list">
             <div v-if="comparison.incidentChanges.added.length > 0" class="change-group added">
-              <h5>新增 ({{ comparison.incidentChanges.added.length }})</h5>
+              <h5>{{ t('comparison.added') }} ({{ comparison.incidentChanges.added.length }})</h5>
               <ul>
                 <li v-for="(inc, i) in comparison.incidentChanges.added.slice(0, 5)" :key="'inc-add-'+i">
                   <span class="sev-dot" :class="inc.severity"></span> {{ inc.title }} ({{ inc.source_ip }})
                 </li>
-                <li v-if="comparison.incidentChanges.added.length > 5" class="more">... 以及另外 {{ comparison.incidentChanges.added.length - 5 }} 个</li>
+                <li v-if="comparison.incidentChanges.added.length > 5" class="more">{{ t('comparison.andOthers').replace('{count}', comparison.incidentChanges.added.length - 5) }}</li>
               </ul>
             </div>
             <div v-if="comparison.incidentChanges.removed.length > 0" class="change-group removed">
-              <h5>消失 ({{ comparison.incidentChanges.removed.length }})</h5>
+              <h5>{{ t('comparison.removed') }} ({{ comparison.incidentChanges.removed.length }})</h5>
               <ul>
                 <li v-for="(inc, i) in comparison.incidentChanges.removed.slice(0, 5)" :key="'inc-rem-'+i">
                   <span class="sev-dot" :class="inc.severity"></span> {{ inc.title }} ({{ inc.source_ip }})
                 </li>
-                <li v-if="comparison.incidentChanges.removed.length > 5" class="more">... 以及另外 {{ comparison.incidentChanges.removed.length - 5 }} 个</li>
+                <li v-if="comparison.incidentChanges.removed.length > 5" class="more">{{ t('comparison.andOthers').replace('{count}', comparison.incidentChanges.removed.length - 5) }}</li>
               </ul>
             </div>
             <div v-if="comparison.incidentChanges.added.length === 0 && comparison.incidentChanges.removed.length === 0" class="no-changes">
-              安全事件无变化
+              {{ t('comparison.incidentsNoChanges') }}
             </div>
           </div>
         </div>
@@ -145,6 +145,7 @@
 import { ref, watch } from 'vue'
 import { compareAnalyses, generateComparisonMarkdown } from '../utils/comparisonUtils'
 import { downloadTextFile } from '../utils/exportUtils'
+import { t, translateSeverity, currentLanguage } from '../i18n'
 
 const props = defineProps({
   history: {
@@ -164,21 +165,25 @@ watch(() => props.history, (newHistory) => {
   if (!baseId.value || !targetId.value) comparison.value = null
 }, { deep: true })
 
+// Re-run comparison if language changes to update narrative
+watch(currentLanguage, () => {
+  if (baseId.value && targetId.value) {
+    performComparison()
+  }
+})
+
 const performComparison = () => {
   const baseRecord = props.history.find(r => r.id === baseId.value)
   const targetRecord = props.history.find(r => r.id === targetId.value)
 
   if (baseRecord && targetRecord) {
-    // We need the full results. In our historyStorage, we might only have summaries.
-    // However, the prompt says "reuse localStorage in Recent Analyses".
-    // Let's assume the history records in props.history contain the 'result' field if available.
-    comparison.value = compareAnalyses(baseRecord, targetRecord)
+    comparison.value = compareAnalyses(baseRecord, targetRecord, { language: currentLanguage.value })
   }
 }
 
 const downloadMarkdown = () => {
   if (!comparison.value) return
-  const md = generateComparisonMarkdown(comparison.value)
+  const md = generateComparisonMarkdown(comparison.value, { language: currentLanguage.value })
   const dateStr = new Date().toISOString().split('T')[0]
   downloadTextFile(`report_comparison_${dateStr}.md`, md, 'text/markdown')
 }

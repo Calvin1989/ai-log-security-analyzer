@@ -1,3 +1,5 @@
+import { t, translateSeverity, translateRiskLevel } from '../i18n'
+
 /**
  * Utility functions for comparing two analysis results.
  */
@@ -7,9 +9,10 @@
  *
  * @param {Object} base - The baseline analysis result.
  * @param {Object} target - The target analysis result to compare against the baseline.
+ * @param {Object} options - Options including language.
  * @returns {Object} - The comparison report.
  */
-export function compareAnalyses(base, target) {
+export function compareAnalyses(base, target, options = { language: 'zh' }) {
   // Graceful handling of missing data
   const baseResult = base?.result || base || {};
   const targetResult = target?.result || target || {};
@@ -116,25 +119,41 @@ export function compareAnalyses(base, target) {
   })).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0, 10);
 
   // 6. Narrative summary
-  const headline = riskScoreDelta > 0 ? '安全风险显著上升' : (riskScoreDelta < 0 ? '安全风险有所下降' : '安全风险保持稳定');
+  const headline = riskScoreDelta > 0
+    ? t('comparison.riskUp')
+    : (riskScoreDelta < 0 ? t('comparison.riskDown') : t('comparison.riskStable'));
 
-  let riskLevelChange = 'unchanged';
+  let riskLevelChange = t('comparison.noChanges');
   if (baseExec.overall_risk_level !== targetExec.overall_risk_level) {
-    riskLevelChange = `从 ${baseExec.overall_risk_level || 'Unknown'} 变为 ${targetExec.overall_risk_level || 'Unknown'}`;
+    const from = translateRiskLevel(baseExec.overall_risk_level) || 'Unknown';
+    const to = translateRiskLevel(targetExec.overall_risk_level) || 'Unknown';
+    riskLevelChange = options.language === 'zh' ? `从 ${from} 变为 ${to}` : `Changed from ${from} to ${to}`;
   }
 
   const keyChanges = [];
-  if (riskScoreDelta !== 0) keyChanges.push(`风险评分变化了 ${riskScoreDelta} 分。`);
-  if (findingChanges.added.length > 0) keyChanges.push(`新增了 ${findingChanges.added.length} 个风险点。`);
-  if (incidentChanges.added.length > 0) keyChanges.push(`新增了 ${incidentChanges.added.length} 个安全事件。`);
-  if (findingChanges.removed.length > 0) keyChanges.push(`减少了 ${findingChanges.removed.length} 个旧风险点。`);
+  if (riskScoreDelta !== 0) {
+    keyChanges.push(t('comparison.scoreChange').replace('{delta}', riskScoreDelta));
+  }
+  if (findingChanges.added.length > 0) {
+    keyChanges.push(t('comparison.findingsAdded').replace('{count}', findingChanges.added.length));
+  }
+  if (incidentChanges.added.length > 0) {
+    keyChanges.push(t('comparison.incidentsAdded').replace('{count}', incidentChanges.added.length));
+  }
+  if (findingChanges.removed.length > 0) {
+    keyChanges.push(t('comparison.findingsRemoved').replace('{count}', findingChanges.removed.length));
+  }
 
-  const recommendedActions = targetExec.recommended_next_steps || ['继续监控日志内容', '复核新增的风险点', '检查高频访问的 IP'];
+  const recommendedActions = targetExec.recommended_next_steps || (
+    options.language === 'zh'
+      ? ['继续监控日志内容', '复核新增的风险点', '检查高频访问的 IP']
+      : ['Continue monitoring log content', 'Review new findings', 'Check high frequency IPs']
+  );
 
   return {
     summary: {
-      baseLabel: base.label || base.filename || 'Baseline',
-      targetLabel: target.label || target.filename || 'Target',
+      baseLabel: base.label || base.filename || (options.language === 'zh' ? '基准报告' : 'Baseline'),
+      targetLabel: target.label || target.filename || (options.language === 'zh' ? '目标报告' : 'Target'),
       riskScoreDelta,
       riskLevelChange,
       totalFindingsDelta,
@@ -157,7 +176,9 @@ export function compareAnalyses(base, target) {
     topPathChanges,
     narrative: {
       headline,
-      overview: `对比分析显示，目标报告相对于基准报告，风险评分${riskScoreDelta >= 0 ? '增加' : '减少'}了 ${Math.abs(riskScoreDelta)} 分。`,
+      overview: t('comparison.overview')
+        .replace('{action}', riskScoreDelta >= 0 ? t('comparison.increased') : t('comparison.decreased'))
+        .replace('{delta}', Math.abs(riskScoreDelta)),
       keyChanges: keyChanges.join(' '),
       recommendedActions
     }
@@ -168,66 +189,67 @@ export function compareAnalyses(base, target) {
  * Generates a Markdown report for the comparison.
  *
  * @param {Object} comparison - The comparison result from compareAnalyses.
+ * @param {Object} options - Options including language.
  * @returns {string} - The Markdown content.
  */
-export function generateComparisonMarkdown(comparison) {
+export function generateComparisonMarkdown(comparison, options = { language: 'zh' }) {
   const { summary, severityChanges, findingChanges, incidentChanges, narrative } = comparison;
 
-  let md = `# 安全分析对比报告\n\n`;
-  md += `## 概览\n\n`;
-  md += `- **基准报告**: ${summary.baseLabel}\n`;
-  md += `- **目标报告**: ${summary.targetLabel}\n`;
-  md += `- **风险变化**: ${narrative.headline}\n`;
-  md += `- **风险等级**: ${summary.riskLevelChange}\n`;
-  md += `- **风险评分变化**: ${summary.riskScoreDelta > 0 ? '+' : ''}${summary.riskScoreDelta}\n\n`;
+  let md = `# ${t('comparison.mdTitle')}\n\n`;
+  md += `## ${t('comparison.mdOverview')}\n\n`;
+  md += `- **${t('comparison.baseline')}**: ${summary.baseLabel}\n`;
+  md += `- **${t('comparison.target')}**: ${summary.targetLabel}\n`;
+  md += `- **${t('comparison.riskScoreDelta')}**: ${narrative.headline}\n`;
+  md += `- **${t('executive.overallRiskLevel')}**: ${summary.riskLevelChange}\n`;
+  md += `- **${t('comparison.riskScoreDelta')}**: ${summary.riskScoreDelta > 0 ? '+' : ''}${summary.riskScoreDelta}\n\n`;
 
-  md += `## 核心指标变化\n\n`;
-  md += `| 指标 | 基准 | 目标 | 变化 |\n`;
+  md += `## ${t('comparison.mdMetrics')}\n\n`;
+  md += `| ${t('common.fields')} | ${t('comparison.baseline')} | ${t('comparison.target')} | ${t('comparison.riskScoreDelta')} |\n`;
   md += `| :--- | :--- | :--- | :--- |\n`;
-  md += `| 风险评分 | - | - | ${summary.riskScoreDelta} |\n`;
-  md += `| 风险点数量 | - | - | ${summary.totalFindingsDelta} |\n`;
-  md += `| 安全事件数量 | - | - | ${summary.totalIncidentsDelta} |\n`;
-  md += `| 时间轴事件 | - | - | ${summary.timelineEventsDelta} |\n`;
-  md += `| 解析成功率 | - | - | ${summary.parseRateDelta.toFixed(2)}% |\n\n`;
+  md += `| ${t('comparison.riskScoreDelta')} | - | - | ${summary.riskScoreDelta} |\n`;
+  md += `| ${t('comparison.findingsDelta')} | - | - | ${summary.totalFindingsDelta} |\n`;
+  md += `| ${t('comparison.incidentsDelta')} | - | - | ${summary.totalIncidentsDelta} |\n`;
+  md += `| ${t('timeline.title')} | - | - | ${summary.timelineEventsDelta} |\n`;
+  md += `| ${t('parse.title')} | - | - | ${summary.parseRateDelta.toFixed(2)}% |\n\n`;
 
-  md += `## 严重程度分布变化\n\n`;
-  md += `| 严重程度 | 基准数量 | 目标数量 | 变化 |\n`;
+  md += `## ${t('comparison.mdSeverity')}\n\n`;
+  md += `| ${t('common.severity')} | ${t('comparison.baseline')} | ${t('comparison.target')} | ${t('comparison.riskScoreDelta')} |\n`;
   md += `| :--- | :--- | :--- | :--- |\n`;
   severityChanges.forEach(s => {
-    md += `| ${s.severity.toUpperCase()} | ${s.baseCount} | ${s.targetCount} | ${s.delta > 0 ? '+' : ''}${s.delta} |\n`;
+    md += `| ${translateSeverity(s.severity).toUpperCase()} | ${s.baseCount} | ${s.targetCount} | ${s.delta > 0 ? '+' : ''}${s.delta} |\n`;
   });
   md += `\n`;
 
-  md += `## 风险点变更 (Findings)\n\n`;
+  md += `## ${t('comparison.mdFindings')}\n\n`;
   if (findingChanges.added.length > 0) {
-    md += `### 新增风险点\n`;
-    findingChanges.added.forEach(f => md += `- [${f.severity.toUpperCase()}] ${f.title} (${f.rule_id})\n`);
+    md += `### ${t('comparison.added')}\n`;
+    findingChanges.added.forEach(f => md += `- [${translateSeverity(f.severity).toUpperCase()}] ${f.title} (${f.rule_id})\n`);
     md += `\n`;
   }
   if (findingChanges.removed.length > 0) {
-    md += `### 已消失风险点\n`;
-    findingChanges.removed.forEach(f => md += `- [${f.severity.toUpperCase()}] ${f.title} (${f.rule_id})\n`);
+    md += `### ${t('comparison.removed')}\n`;
+    findingChanges.removed.forEach(f => md += `- [${translateSeverity(f.severity).toUpperCase()}] ${f.title} (${f.rule_id})\n`);
     md += `\n`;
   }
 
-  md += `## 安全事件变更 (Incidents)\n\n`;
+  md += `## ${t('comparison.mdIncidents')}\n\n`;
   if (incidentChanges.added.length > 0) {
-    md += `### 新增安全事件\n`;
-    incidentChanges.added.forEach(inc => md += `- [${inc.severity.toUpperCase()}] ${inc.title} (IP: ${inc.source_ip})\n`);
+    md += `### ${t('comparison.added')}\n`;
+    incidentChanges.added.forEach(inc => md += `- [${translateSeverity(inc.severity).toUpperCase()}] ${inc.title} (IP: ${inc.source_ip})\n`);
     md += `\n`;
   }
   if (incidentChanges.removed.length > 0) {
-    md += `### 已消失安全事件\n`;
-    incidentChanges.removed.forEach(inc => md += `- [${inc.severity.toUpperCase()}] ${inc.title} (IP: ${inc.source_ip})\n`);
+    md += `### ${t('comparison.removed')}\n`;
+    incidentChanges.removed.forEach(inc => md += `- [${translateSeverity(inc.severity).toUpperCase()}] ${inc.title} (IP: ${inc.source_ip})\n`);
     md += `\n`;
   }
 
-  md += `## 结论与建议\n\n`;
-  md += `### 变化总结\n${narrative.keyChanges}\n\n`;
-  md += `### 推荐后续行动\n`;
+  md += `## ${t('comparison.mdConclusion')}\n\n`;
+  md += `### ${t('comparison.mdConclusionSummary')}\n${narrative.keyChanges}\n\n`;
+  md += `### ${t('comparison.mdActions')}\n`;
   narrative.recommendedActions.forEach(action => md += `- ${action}\n`);
 
-  md += `\n\n---\n*报告生成于: ${new Date().toLocaleString()} (Local-first Analysis Comparison)*\n`;
+  md += `\n\n---\n*${t('comparison.mdGeneratedAt')}: ${new Date().toLocaleString()} (Local-first Analysis Comparison)*\n`;
 
   return md;
 }

@@ -51,7 +51,12 @@ If you prefer Docker, you can start both the backend and frontend with a single 
 1. **Launch with Docker**:
    - Run `docker compose up --build`.
    - Open `http://localhost:5173`.
-2. **Initial Analysis**:
+2. **Language Switch (v1.7.1)**:
+   - Notice the **"中文 | English"** toggle in the header.
+   - Click **"English"** to switch the UI to English.
+   - Click **"中文"** to switch back to Chinese.
+   - Observe that the preference is preserved after a page refresh.
+3. **Initial Analysis**:
    - Click **"Choose a .log or .txt file"**.
    - Select `samples/nginx_access_sample.log`.
    - Click **"Analyze"**.

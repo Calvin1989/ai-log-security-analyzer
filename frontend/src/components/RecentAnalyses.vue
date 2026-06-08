@@ -1,14 +1,14 @@
 <template>
   <section class="history-container">
     <div class="history-header">
-      <h3>Recent Analyses</h3>
+      <h3>{{ t('history.title') }}</h3>
       <button v-if="history.length > 0" @click="$emit('clear')" class="clear-btn">
-        Clear History
+        {{ t('history.clearHistory') }}
       </button>
     </div>
 
     <div v-if="history.length === 0" class="empty-state">
-      No recent analysis records found in this browser.
+      {{ t('history.emptyState') }}
     </div>
 
     <div v-else class="history-list">
@@ -25,11 +25,11 @@
         
         <div class="item-stats">
           <span class="stat-tag format">{{ record.log_format }}</span>
-          <span class="stat-tag success">{{ (record.parse_rate * 100).toFixed(0) }}% parsed</span>
-          <span v-if="record.incidents_count > 0" class="stat-tag incident">{{ record.incidents_count }} incidents</span>
-          <span v-if="record.findings_count > 0" class="stat-tag finding">{{ record.findings_count }} findings</span>
-          <span v-if="record.skipped_lines > 0" class="stat-tag skip">{{ record.skipped_lines }} skipped</span>
-          <span v-if="record.sanitized_result" class="stat-tag cached">Sanitized cached</span>
+          <span class="stat-tag success">{{ (record.parse_rate * 100).toFixed(0) }}% {{ t('history.parsed') }}</span>
+          <span v-if="record.incidents_count > 0" class="stat-tag incident">{{ record.incidents_count }} {{ t('history.incidents') }}</span>
+          <span v-if="record.findings_count > 0" class="stat-tag finding">{{ record.findings_count }} {{ t('history.findings') }}</span>
+          <span v-if="record.skipped_lines > 0" class="stat-tag skip">{{ record.skipped_lines }} {{ t('history.skipped') }}</span>
+          <span v-if="record.sanitized_result" class="stat-tag cached">{{ t('history.sanitizedCached') }}</span>
         </div>
       </div>
     </div>
@@ -37,6 +37,8 @@
 </template>
 
 <script setup>
+import { t } from '../i18n'
+
 defineProps({
   history: {
     type: Array,

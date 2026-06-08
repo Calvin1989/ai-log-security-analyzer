@@ -1,8 +1,13 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ExecutiveSummary from '../components/ExecutiveSummary.vue'
+import { setLanguage } from '../i18n'
 
 describe('ExecutiveSummary.vue', () => {
+  beforeEach(() => {
+    setLanguage('en')
+  })
+
   const mockSummary = {
     overall_risk_level: 'high',
     risk_score: 75,

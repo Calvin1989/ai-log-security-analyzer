@@ -2,13 +2,13 @@
   <section v-if="summary" class="executive-summary-card">
     <div class="summary-header">
       <div class="risk-badge" :class="summary.overall_risk_level.toLowerCase()">
-        <span class="risk-level">{{ summary.overall_risk_level.toUpperCase() }}</span>
+        <span class="risk-level">{{ translateRiskLevel(summary.overall_risk_level).toUpperCase() }}</span>
         <span class="risk-score">{{ summary.risk_score }}/100</span>
       </div>
       <div class="headline-container">
         <h2 class="headline">{{ summary.headline }}</h2>
-        <button @click="downloadMarkdown" class="download-btn" title="Download Executive Summary as Markdown">
-          Download MD
+        <button @click="downloadMarkdown" class="download-btn" :title="t('executive.downloadMdTitle', 'Download Executive Summary as Markdown')">
+          {{ t('actions.downloadMd') }}
         </button>
       </div>
     </div>
@@ -17,29 +17,29 @@
 
     <div class="summary-details">
       <div class="detail-section">
-        <h3>Key Metrics</h3>
+        <h3>{{ t('executive.keyMetrics') }}</h3>
         <ul>
           <li v-for="metric in summary.key_metrics" :key="metric">{{ metric }}</li>
         </ul>
       </div>
 
       <div class="detail-section">
-        <h3>Top Risks</h3>
+        <h3>{{ t('executive.topRisks') }}</h3>
         <ul>
           <li v-for="risk in summary.top_risks" :key="risk">{{ risk }}</li>
         </ul>
       </div>
 
       <div class="detail-section">
-        <h3>Key Affected IPs</h3>
+        <h3>{{ t('executive.keyAffectedIps') }}</h3>
         <div class="ip-tags">
           <span v-for="ip in summary.key_affected_ips" :key="ip" class="ip-tag">{{ ip }}</span>
-          <span v-if="summary.key_affected_ips.length === 0" class="no-data">None detected</span>
+          <span v-if="summary.key_affected_ips.length === 0" class="no-data">{{ t('executive.noneDetected') }}</span>
         </div>
       </div>
 
       <div class="detail-section full-width">
-        <h3>Recommended Next Steps</h3>
+        <h3>{{ t('executive.recommendedNextSteps') }}</h3>
         <ul>
           <li v-for="step in summary.recommended_next_steps" :key="step">{{ step }}</li>
         </ul>
@@ -47,12 +47,14 @@
     </div>
 
     <div class="methodology-note">
-      <strong>Methodology:</strong> {{ summary.methodology }}
+      <strong>{{ t('executive.methodology') }}:</strong> {{ summary.methodology }}
     </div>
   </section>
 </template>
 
 <script setup>
+import { t, translateRiskLevel } from '../i18n'
+
 const props = defineProps({
   summary: {
     type: Object,
@@ -67,25 +69,25 @@ const downloadMarkdown = () => {
   const date = new Date().toISOString().split('T')[0]
   const filename = `executive_summary_${date}.md`
 
-  let md = `# Executive Summary - Web Log Security Analysis\n\n`
+  let md = `# ${t('executive.title')}\n\n`
   md += `## ${props.summary.headline}\n\n`
-  md += `**Overall Risk Level:** ${props.summary.overall_risk_level.toUpperCase()} (${props.summary.risk_score}/100)\n\n`
+  md += `**${t('executive.overallRiskLevel')}:** ${translateRiskLevel(props.summary.overall_risk_level).toUpperCase()} (${props.summary.risk_score}/100)\n\n`
   md += `${props.summary.overview}\n\n`
 
-  md += `### Key Metrics\n`
+  md += `### ${t('executive.keyMetrics')}\n`
   props.summary.key_metrics.forEach(m => md += `- ${m}\n`)
 
-  md += `\n### Top Risks\n`
+  md += `\n### ${t('executive.topRisks')}\n`
   props.summary.top_risks.forEach(r => md += `- ${r}\n`)
 
-  md += `\n### Key Affected IPs\n`
+  md += `\n### ${t('executive.keyAffectedIps')}\n`
   props.summary.key_affected_ips.forEach(ip => md += `- ${ip}\n`)
-  if (props.summary.key_affected_ips.length === 0) md += `- None detected\n`
+  if (props.summary.key_affected_ips.length === 0) md += `- ${t('executive.noneDetected')}\n`
 
-  md += `\n### Recommended Next Steps\n`
+  md += `\n### ${t('executive.recommendedNextSteps')}\n`
   props.summary.recommended_next_steps.forEach(s => md += `- ${s}\n`)
 
-  md += `\n---\n*Methodology: ${props.summary.methodology}*`
+  md += `\n---\n**${t('executive.methodology')}:** ${props.summary.methodology}\n`
 
   const blob = new Blob([md], { type: 'text/markdown' })
   const url = URL.createObjectURL(blob)

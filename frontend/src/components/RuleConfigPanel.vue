@@ -1,23 +1,23 @@
 <template>
   <section class="rule-card">
     <div class="header">
-      <h2>Active Rule Configuration</h2>
+      <h2>{{ t('ruleConfig.title', 'Active Rule Configuration') }}</h2>
       <span class="source-tag" :class="sourceClass">{{ rules.source }}</span>
     </div>
 
     <div class="rules-grid">
       <div class="rule-item">
-        <label>High Frequency Threshold</label>
-        <div class="value">{{ rules.high_frequency_threshold }} requests</div>
+        <label>{{ t('ruleConfig.highFrequencyThreshold', 'High Frequency Threshold') }}</label>
+        <div class="value">{{ rules.high_frequency_threshold }} {{ t('ruleConfig.requests', 'requests') }}</div>
       </div>
       <div class="rule-item">
-        <label>Path Scanning Threshold</label>
+        <label>{{ t('ruleConfig.pathScanningThreshold', 'Path Scanning Threshold') }}</label>
         <div class="value">{{ rules.path_scanning_404_threshold }} 404s</div>
       </div>
     </div>
 
     <div class="list-section">
-      <label>Sensitive Paths</label>
+      <label>{{ t('ruleConfig.sensitivePaths', 'Sensitive Paths') }}</label>
       <div class="tag-container">
         <span v-for="path in rules.sensitive_paths" :key="path" class="tag path-tag">
           {{ path }}
@@ -26,7 +26,7 @@
     </div>
 
     <div class="list-section">
-      <label>Suspicious User-Agents</label>
+      <label>{{ t('ruleConfig.suspiciousUserAgents', 'Suspicious User-Agents') }}</label>
       <div class="tag-container">
         <span v-for="ua in rules.suspicious_user_agents" :key="ua" class="tag ua-tag">
           {{ ua }}
@@ -38,6 +38,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { t } from '../i18n'
 
 const props = defineProps({
   rules: {
