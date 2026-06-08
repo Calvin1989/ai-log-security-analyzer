@@ -23,6 +23,7 @@ Local-first Web log security analysis with rule-based findings, aggregated incid
 - **Explainable Detection**: 增强的检测结果可解释性，每个 Finding 包含命中次数、命中字段和命中值列表，并支持前端展开/收起查看。
 - **Severity Distribution**: 提供直观的风险等级分布统计，分别展示 Findings 和 Incidents 的 High/Medium/Low 数量。
 - **智能聚合**: 自动将同一 IP 的多个可疑行为聚合成高级别的安全事件（如 Reconnaissance, Directory Scanning）。
+- **Attack Timeline View**: 按照时间顺序展示关键安全事件，帮助分析师还原攻击全过程，支持按严重程度和 IP 进行本地过滤。
 - **隐私保护**: 提供“脱敏报告”功能，自动隐藏 IP 后两段及敏感 Query 参数，支持安全地分享分析结论。
     *   **注意**：脱敏基于正则表达式，为 Best-effort 尝试（包括对报告中的解析错误样本进行脱敏），分享前仍建议人工检查敏感信息是否完全清除。
 - **结构化展示**: 现代化的 Web 界面，包含统计看板、当前规则展示、事件视图和风险卡片。

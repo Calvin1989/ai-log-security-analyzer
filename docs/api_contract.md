@@ -76,6 +76,20 @@ Returns an `AnalysisResult` JSON object.
       "low": 0
     }
   },
+  "timeline_events": [
+    {
+      "event_id": "e1f2g3h4",
+      "timestamp": "01/Jun/2026:10:00:01",
+      "source_ip": "1.2.3.4",
+      "event_type": "path_probe",
+      "severity": "high",
+      "title": "Sensitive Path Probe: /.env",
+      "description": "IP 1.2.3.4 attempted to access sensitive path /.env.",
+      "related_rule_id": "sensitive_path_probe",
+      "related_incident_id": "a1b2c3d4",
+      "evidence": "1.2.3.4 - - [01/Jun/2026:10:00:01 +0000] \"GET /.env HTTP/1.1\" 404 ..."
+    }
+  ],
   "parse_stats": {
     "total_lines": 25,
     "parsed_lines": 23,

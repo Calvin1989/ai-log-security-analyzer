@@ -1,6 +1,6 @@
 import pytest
 from app.sanitizer import sanitize_ip, sanitize_text, sanitize_analysis_result
-from app.schemas import AnalysisResult, AnalysisSummary, Finding, Incident, ParseStats
+from app.schemas import AnalysisResult, AnalysisSummary, Finding, Incident, ParseStats, TimelineEvent
 
 def test_sanitize_ip():
     assert sanitize_ip("192.168.1.100") == "192.168.x.x"
@@ -47,8 +47,15 @@ def test_sanitize_analysis_result_immutability():
         total_lines=1, parsed_lines=1, skipped_lines=0,
         parse_rate=1.0, requested_format="auto", detected_format="nginx"
     )
+    event = TimelineEvent(
+        event_id="ev-1", timestamp="01/Jun/2026:10:00:00",
+        source_ip="1.2.3.4", event_type="test", severity="high",
+        title="Test Event", description="IP 1.2.3.4 accessed /?token=secret",
+        evidence="1.2.3.4 - GET /?token=secret"
+    )
     result = AnalysisResult(
         summary=summary, findings=[finding], incidents=[incident], 
+        timeline_events=[event],
         parse_stats=stats, report_markdown="IP: 1.2.3.4 and token=secret"
     )
     
@@ -60,6 +67,7 @@ def test_sanitize_analysis_result_immutability():
     assert result.findings[0].description == "Found 1.2.3.4"
     assert result.findings[0].evidence[0] == "1.2.3.4 - GET /api?token=secret"
     assert result.incidents[0].source_ip == "1.2.3.4"
+    assert result.timeline_events[0].source_ip == "1.2.3.4"
     assert result.report_markdown == "IP: 1.2.3.4 and token=secret"
     
     # Sanitized should be redacted
@@ -74,6 +82,13 @@ def test_sanitize_analysis_result_immutability():
     assert "1.2.x.x" in sanitized.incidents[0].summary
     assert "1.2.x.x" in sanitized.incidents[0].evidence[0]
     assert "1.2.x.x" in sanitized.incidents[0].recommendations[0]
+    
+    # Timeline event sanitization
+    assert sanitized.timeline_events[0].source_ip == "1.2.x.x"
+    assert "1.2.x.x" in sanitized.timeline_events[0].description
+    assert "token=<redacted>" in sanitized.timeline_events[0].description
+    assert "1.2.x.x" in sanitized.timeline_events[0].evidence
+    assert "token=<redacted>" in sanitized.timeline_events[0].evidence
     
     assert "1.2.x.x" in sanitized.report_markdown
     assert "token=<redacted>" in sanitized.report_markdown

@@ -15,7 +15,9 @@ def test_analyze_log_text_contains_incidents():
     assert len(result.incidents) > 0
     assert any(inc.title == "Advanced Reconnaissance Activity" for inc in result.incidents)
     assert "# AI Log Security Analysis Report" in result.report_markdown    
-    assert "## 5. Security Incidents" in result.report_markdown
+    assert "## 6. Security Incidents" in result.report_markdown
+    assert hasattr(result, "timeline_events")
+    assert len(result.timeline_events) > 0
 
 def test_analyze_log_text_severity_counts():
     log_content = """192.168.1.1 - - [07/Jun/2026:10:00:01 +0000] "GET /index.html HTTP/1.1" 200 1024 "-" "Mozilla/5.0"

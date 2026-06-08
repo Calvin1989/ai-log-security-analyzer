@@ -27,6 +27,11 @@ This checklist ensures that the **AI Log Security Analyzer** is stable and ready
 - [ ] **Rule Match Details**: Verify that Findings show matched details (Count, Fields, Values) and expansion/collapse works.
 - [ ] **Legacy Data Compatibility**: Verify that Recent Analyses records without matched_* fields still render safely (no UI crashes).
 - [ ] **Parse Stats**: Verify that the Parsing Quality card shows correct stats (Total/Parsed/Skipped).
+- [ ] **Attack Timeline**: 
+    - [ ] Verify Timeline View renders events in chronological order.
+    - [ ] Verify Severity and IP filters work correctly.
+    - [ ] Verify Evidence expansion in the timeline.
+    - [ ] Verify timeline events are properly sanitized in the sanitized report.
 - [ ] **Skipped Samples**: Verify that Skipped Line Samples are displayed if the log contains malformed lines (use `nginx_access_sample.log`).
 - [ ] **Markdown Report**: Verify the "Show/Hide Preview" button works.
 - [ ] **Downloads**: Verify both "Download Report" and "Download Sanitized" trigger correct file downloads.

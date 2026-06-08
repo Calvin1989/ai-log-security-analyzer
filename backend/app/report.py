@@ -44,6 +44,32 @@ def generate_markdown_report(result: AnalysisResult) -> str:
         f"- **Parse Rate:** {stats.parse_rate * 100:.2f}%",
         f"- **Log Format:** {stats.detected_format} (requested: {stats.requested_format})",
     ]
+
+    # Section 4: Attack Timeline
+    report.append("\n## 4. Attack Timeline")
+    timeline_events = result.timeline_events
+    if not timeline_events:
+        report.append("\nNo significant security events recorded in the timeline.")
+    else:
+        report.extend([
+            "\n| Timestamp | Severity | Source IP | Title | Evidence (Snippet) |",
+            "| :--- | :--- | :--- | :--- | :--- |"
+        ])
+        # Show max 20 events in the report
+        for event in timeline_events[:20]:
+            severity_label = {
+                "low": "🔵 Low",
+                "medium": "🟠 Medium",
+                "high": "🔴 High"
+            }.get(event.severity.lower(), event.severity.upper())
+            
+            # Truncate evidence for table
+            evidence_snippet = (event.evidence[:50] + "...") if event.evidence and len(event.evidence) > 50 else (event.evidence or "-")
+            
+            report.append(f"| {event.timestamp} | {severity_label} | {event.source_ip} | {event.title} | {evidence_snippet} |")
+        
+        if len(timeline_events) > 20:
+            report.append(f"\n*... and {len(timeline_events) - 20} more events (view full list in the application).*")
     
     if stats.skipped_lines > 0:
         report.append("\n> ⚠️ **Warning:** Some lines could not be parsed. Please verify the selected log format or check for custom log formats.")
@@ -55,7 +81,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
                 report.append(f"  - *Reason*: {sample.reason}")
 
     report.extend([
-        "\n## 4. Traffic Analysis",
+        "\n## 5. Traffic Analysis",
         "\n### Top 5 IPs",
         "| IP Address | Request Count |",
         "| :--- | :--- |"
@@ -72,7 +98,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
         report.append(f"| {item['path']} | {item['count']} |")
 
     # Section 3: Security Incidents
-    report.append("\n## 5. Security Incidents")
+    report.append("\n## 6. Security Incidents")
     if not incidents:
         report.append("\nNo significant security incidents aggregated.")
     else:
@@ -95,7 +121,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
                     report.append(f"- {rec}")
 
     # Section 4: Risk Findings
-    report.append("\n## 6. Risk Findings")
+    report.append("\n## 7. Risk Findings")
     if not findings:
         report.append("\nNo specific risks detected.")
     else:
@@ -121,7 +147,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
                     report.append(f"```\n{line}\n```")
 
     report.extend([
-        "\n## 7. Remediation Suggestions",
+        "\n## 8. Remediation Suggestions",
         "- **Block High Risk IPs:** Consider blocking IPs that are scanning for sensitive paths or have excessive 404s.",
         "- **Rate Limiting:** Implement rate limiting for IPs showing high frequency behavior.",
         "- **Web Application Firewall (WAF):** Deploy a WAF to filter out suspicious User-Agents and known attack patterns.",

@@ -36,6 +36,18 @@ class AnalysisSummary(BaseModel):
     finding_severity_counts: Dict[str, int] = {}
     incident_severity_counts: Dict[str, int] = {}
 
+class TimelineEvent(BaseModel):
+    event_id: str
+    timestamp: str
+    source_ip: str
+    event_type: str
+    severity: str
+    title: str
+    description: str
+    related_rule_id: str | None = None
+    related_incident_id: str | None = None
+    evidence: str | None = None
+
 class Incident(BaseModel):
     incident_id: str
     title: str
@@ -65,6 +77,7 @@ class AnalysisResult(BaseModel):
     summary: AnalysisSummary
     findings: List[Finding]
     incidents: List[Incident]
+    timeline_events: List[TimelineEvent] = []
     parse_stats: ParseStats
     report_markdown: str
 

@@ -1,6 +1,6 @@
 import re
 from typing import List, Any
-from .schemas import Finding, Incident, AnalysisResult, AnalysisSummary
+from .schemas import Finding, Incident, AnalysisResult, AnalysisSummary, TimelineEvent
 
 # Regex for IPv4
 IP_PATTERN = re.compile(r'(\d{1,3}\.\d+)\.\d+\.\d+')
@@ -61,6 +61,13 @@ def _sanitize_incident_in_place(incident: Incident) -> None:
     incident.evidence = [sanitize_text(e) for e in incident.evidence]
     incident.recommendations = [sanitize_text(r) for r in incident.recommendations]
 
+def _sanitize_timeline_event_in_place(event: TimelineEvent) -> None:
+    """Modifies a TimelineEvent object in-place with sanitized data."""
+    event.source_ip = sanitize_ip(event.source_ip)
+    event.description = sanitize_text(event.description)
+    if event.evidence:
+        event.evidence = sanitize_text(event.evidence)
+
 def sanitize_analysis_result(result: AnalysisResult) -> AnalysisResult:
     """
     Creates a new AnalysisResult with all sensitive data redacted.
@@ -83,8 +90,12 @@ def sanitize_analysis_result(result: AnalysisResult) -> AnalysisResult:
     # 4. Sanitize incidents
     for incident in sanitized.incidents:
         _sanitize_incident_in_place(incident)
+
+    # 5. Sanitize timeline events
+    for event in sanitized.timeline_events:
+        _sanitize_timeline_event_in_place(event)
     
-    # 5. Regenerate the markdown report based on sanitized data
+    # 6. Regenerate the markdown report based on sanitized data
     from .report import generate_markdown_report
     sanitized.report_markdown = generate_markdown_report(sanitized)
     

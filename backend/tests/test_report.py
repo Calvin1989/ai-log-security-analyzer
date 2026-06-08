@@ -42,6 +42,7 @@ def test_generate_markdown_report():
         summary=summary,
         findings=findings,
         incidents=[], # Added incidents field
+        timeline_events=[],
         parse_stats=stats,
         report_markdown=""
     )
@@ -49,6 +50,7 @@ def test_generate_markdown_report():
     report = generate_markdown_report(result)
     assert "# AI Log Security Analysis Report" in report
     assert "## 2. Severity Distribution" in report
+    assert "## 4. Attack Timeline" in report
     assert "### Finding Severity Distribution" in report
     assert "- **High:** 1" in report
     assert "## 3. Parsing Quality" in report

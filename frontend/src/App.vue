@@ -43,6 +43,8 @@
           :incidentSeverityCounts="result.summary.incident_severity_counts"
         />
 
+        <TimelineView :timelineEvents="result.timeline_events || []" />
+
         <ParseStatsCard :stats="result.parse_stats" />
 
         <IncidentsList :incidents="result.incidents" />
@@ -88,6 +90,7 @@ import IncidentsList from './components/IncidentsList.vue'
 import RuleConfigPanel from './components/RuleConfigPanel.vue'
 import ParseStatsCard from './components/ParseStatsCard.vue'
 import SeverityDistribution from './components/SeverityDistribution.vue'
+import TimelineView from './components/TimelineView.vue'
 import RecentAnalyses from './components/RecentAnalyses.vue'
 
 const {

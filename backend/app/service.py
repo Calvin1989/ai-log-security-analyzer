@@ -4,6 +4,7 @@ from .schemas import LogEntry, Finding, AnalysisSummary, AnalysisResult, Inciden
 from .parser import parse_lines, parse_file, parse_lines_with_stats
 from .detector import detect, DetectorConfig
 from .incident import build_incidents
+from .timeline import build_timeline_events
 from .report import generate_markdown_report
 from .sanitizer import sanitize_analysis_result
 
@@ -68,11 +69,13 @@ def analyze_log_text(log_text: str, config: Optional[DetectorConfig] = None, log
     findings = detect(logs, config)
     incidents = build_incidents(findings)
     summary = _calculate_summary(logs, findings, incidents)
+    timeline_events = build_timeline_events(logs, findings, incidents)
     
     result = AnalysisResult(
         summary=summary,
         findings=findings,
         incidents=incidents,
+        timeline_events=timeline_events,
         parse_stats=stats,
         report_markdown="" # Placeholder
     )

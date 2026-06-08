@@ -58,6 +58,7 @@ def main() -> None:
         if result.parse_stats.skipped_lines > 0:
             print("[!] Note: Some lines were skipped. Samples are available in the Markdown report.")
         print(f"Risks Detected: {len(result.findings)}")
+        print(f"Timeline Events: {len(result.timeline_events)}")
         
         # New severity distribution summary
         f_counts = result.summary.finding_severity_counts
