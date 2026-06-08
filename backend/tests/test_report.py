@@ -9,7 +9,9 @@ def test_generate_markdown_report():
         total_4xx=2,
         total_5xx=0,
         top_ips=[{"ip": "1.1.1.1", "count": 8}],
-        top_paths=[{"path": "/index", "count": 8}]
+        top_paths=[{"path": "/index", "count": 8}],
+        finding_severity_counts={"high": 1, "medium": 0, "low": 0},
+        incident_severity_counts={"high": 0, "medium": 0, "low": 0}
     )
     findings = [
         Finding(
@@ -46,7 +48,10 @@ def test_generate_markdown_report():
     
     report = generate_markdown_report(result)
     assert "# AI Log Security Analysis Report" in report
-    assert "## 2. Parsing Quality" in report
+    assert "## 2. Severity Distribution" in report
+    assert "### Finding Severity Distribution" in report
+    assert "- **High:** 1" in report
+    assert "## 3. Parsing Quality" in report
     assert "**Successfully Parsed:** 10" in report
     assert "### Skipped Line Samples" in report
     assert "Line 5" in report

@@ -33,6 +33,8 @@ class AnalysisSummary(BaseModel):
     total_5xx: int
     top_ips: List[Dict[str, Any]]
     top_paths: List[Dict[str, Any]]
+    finding_severity_counts: Dict[str, int] = {}
+    incident_severity_counts: Dict[str, int] = {}
 
 class Incident(BaseModel):
     incident_id: str

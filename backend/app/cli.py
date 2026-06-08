@@ -59,6 +59,12 @@ def main() -> None:
             print("[!] Note: Some lines were skipped. Samples are available in the Markdown report.")
         print(f"Risks Detected: {len(result.findings)}")
         
+        # New severity distribution summary
+        f_counts = result.summary.finding_severity_counts
+        i_counts = result.summary.incident_severity_counts
+        print(f"Finding Severity: high={f_counts.get('high', 0)}, medium={f_counts.get('medium', 0)}, low={f_counts.get('low', 0)}")
+        print(f"Incident Severity: high={i_counts.get('high', 0)}, medium={i_counts.get('medium', 0)}, low={i_counts.get('low', 0)}")
+        
     except Exception as e:
         print(f"Error: Analysis failed: {e}")
         sys.exit(1)

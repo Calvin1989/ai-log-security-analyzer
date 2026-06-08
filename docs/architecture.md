@@ -13,7 +13,7 @@ The backend is structured into several layers, each with a specific responsibili
 - **`app/sanitizer.py`**: The data redaction layer. It provides functions to sanitize IP addresses, query parameters, and Authorization headers from analysis results, enabling safe sharing of security reports.
 - **`app/report.py`**: A dedicated rendering layer that takes the analysis results (Summary, Incidents, Findings) and formats them into a structured Markdown report.
 - **`app/schemas.py`**: Defines data contracts using Pydantic models. These models ensure consistent data structures between the backend and frontend.
-- **`app/service.py`**: The unified business entry point. It orchestrates the flow from parsing and detection to incident aggregation and reporting.
+- **`app/service.py`**: The unified business entry point. It orchestrates the flow from parsing and detection to incident aggregation and reporting. It also handles final data aggregation for the `AnalysisSummary`, such as calculating severity distributions.
 - **`app/main.py`**: The FastAPI API layer. It provides RESTful endpoints (e.g., `/api/analyze`) for the frontend to consume.
 - **`app/cli.py`**: A command-line interface for running the analysis directly from the terminal.
 

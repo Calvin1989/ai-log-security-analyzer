@@ -57,6 +57,7 @@ If you prefer Docker, you can start both the backend and frontend with a single 
 
 ## Step 4: Explore Results
 - **Overview Statistics**: View total requests, unique IPs, and error counts.
+- **Severity Distribution**: Check the **"Severity Distribution"** cards to see the breakdown of High, Medium, and Low risks for both individual Findings and aggregated Incidents. This helps you quickly prioritize your response.
 - **Parsing Quality**: Check the **"Parsing Quality"** card to see the success rate of the log parser. If some lines are skipped, it might indicate an incompatible log format. You can see **Skipped Line Samples** (up to 5) with their original line numbers and content to help you troubleshoot the log format or identify corrupt log entries.
 - **Traffic Analysis**: Check Top 5 IPs and Paths.
 - **Security Findings**: Review identified risks like "Sensitive Path Probing" or "Suspicious User Agent". Each card shows a description, recommendation, and evidence.

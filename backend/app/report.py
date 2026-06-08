@@ -26,8 +26,18 @@ def generate_markdown_report(result: AnalysisResult) -> str:
         f"- **5xx Errors:** {summary.total_5xx}",
         f"- **Security Incidents:** {len(incidents)}",
         f"- **Security Risks Found:** {len(findings)}",
+
+        "\n## 2. Severity Distribution",
+        "### Finding Severity Distribution",
+        f"- **High:** {summary.finding_severity_counts.get('high', 0)}",
+        f"- **Medium:** {summary.finding_severity_counts.get('medium', 0)}",
+        f"- **Low:** {summary.finding_severity_counts.get('low', 0)}",
+        "\n### Incident Severity Distribution",
+        f"- **High:** {summary.incident_severity_counts.get('high', 0)}",
+        f"- **Medium:** {summary.incident_severity_counts.get('medium', 0)}",
+        f"- **Low:** {summary.incident_severity_counts.get('low', 0)}",
         
-        "\n## 2. Parsing Quality",
+        "\n## 3. Parsing Quality",
         f"- **Total Lines (non-empty):** {stats.total_lines}",
         f"- **Successfully Parsed:** {stats.parsed_lines}",
         f"- **Skipped Lines:** {stats.skipped_lines}",
@@ -45,7 +55,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
                 report.append(f"  - *Reason*: {sample.reason}")
 
     report.extend([
-        "\n## 3. Traffic Analysis",
+        "\n## 4. Traffic Analysis",
         "\n### Top 5 IPs",
         "| IP Address | Request Count |",
         "| :--- | :--- |"
@@ -62,7 +72,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
         report.append(f"| {item['path']} | {item['count']} |")
 
     # Section 3: Security Incidents
-    report.append("\n## 4. Security Incidents")
+    report.append("\n## 5. Security Incidents")
     if not incidents:
         report.append("\nNo significant security incidents aggregated.")
     else:
@@ -85,7 +95,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
                     report.append(f"- {rec}")
 
     # Section 4: Risk Findings
-    report.append("\n## 5. Risk Findings")
+    report.append("\n## 6. Risk Findings")
     if not findings:
         report.append("\nNo specific risks detected.")
     else:
@@ -111,7 +121,7 @@ def generate_markdown_report(result: AnalysisResult) -> str:
                     report.append(f"```\n{line}\n```")
 
     report.extend([
-        "\n## 6. Remediation Suggestions",
+        "\n## 7. Remediation Suggestions",
         "- **Block High Risk IPs:** Consider blocking IPs that are scanning for sensitive paths or have excessive 404s.",
         "- **Rate Limiting:** Implement rate limiting for IPs showing high frequency behavior.",
         "- **Web Application Firewall (WAF):** Deploy a WAF to filter out suspicious User-Agents and known attack patterns.",

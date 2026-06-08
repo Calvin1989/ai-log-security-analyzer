@@ -38,6 +38,11 @@
       <div v-if="result" class="results-container">
         <SummaryCards :summary="result.summary" />
 
+        <SeverityDistribution 
+          :findingSeverityCounts="result.summary.finding_severity_counts"
+          :incidentSeverityCounts="result.summary.incident_severity_counts"
+        />
+
         <ParseStatsCard :stats="result.parse_stats" />
 
         <IncidentsList :incidents="result.incidents" />
@@ -81,6 +86,7 @@ import MarkdownReport from './components/MarkdownReport.vue'
 import IncidentsList from './components/IncidentsList.vue'
 import RuleConfigPanel from './components/RuleConfigPanel.vue'
 import ParseStatsCard from './components/ParseStatsCard.vue'
+import SeverityDistribution from './components/SeverityDistribution.vue'
 import RecentAnalyses from './components/RecentAnalyses.vue'
 
 const {

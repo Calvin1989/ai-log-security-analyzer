@@ -1,6 +1,6 @@
 import pytest
 from app.service import analyze_log_text
-from app.schemas import AnalysisResult
+from app.schemas import AnalysisResult, AnalysisSummary
 
 def test_analyze_log_text_contains_incidents():
     log_content = """192.168.1.1 - - [07/Jun/2026:10:00:01 +0000] "GET /index.html HTTP/1.1" 200 1024 "-" "Mozilla/5.0"
@@ -15,7 +15,27 @@ def test_analyze_log_text_contains_incidents():
     assert len(result.incidents) > 0
     assert any(inc.title == "Advanced Reconnaissance Activity" for inc in result.incidents)
     assert "# AI Log Security Analysis Report" in result.report_markdown    
-    assert "## 4. Security Incidents" in result.report_markdown
+    assert "## 5. Security Incidents" in result.report_markdown
+
+def test_analyze_log_text_severity_counts():
+    log_content = """192.168.1.1 - - [07/Jun/2026:10:00:01 +0000] "GET /index.html HTTP/1.1" 200 1024 "-" "Mozilla/5.0"
+10.0.0.5 - - [07/Jun/2026:10:01:00 +0000] "GET /.env HTTP/1.1" 404 200 "-" "sqlmap/1.5"
+"""
+    result = analyze_log_text(log_content)
+    
+    # Verify severity counts in summary
+    assert "finding_severity_counts" in AnalysisSummary.model_fields
+    assert "incident_severity_counts" in AnalysisSummary.model_fields
+    
+    # Findings: sqlmap UA (low), sensitive path (high)
+    assert result.summary.finding_severity_counts["high"] >= 1
+    assert result.summary.finding_severity_counts["low"] >= 1
+    assert result.summary.finding_severity_counts["medium"] == 0
+    
+    # Incidents: Advanced Reconnaissance Activity (high)
+    assert result.summary.incident_severity_counts["high"] >= 1
+    assert result.summary.incident_severity_counts["medium"] == 0
+    assert result.summary.incident_severity_counts["low"] == 0
 
 def test_analyze_log_with_custom_config():
     from app.detector import DetectorConfig

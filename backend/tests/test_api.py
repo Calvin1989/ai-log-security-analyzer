@@ -26,6 +26,11 @@ def test_analyze_valid_log():
     assert "report_markdown" in data
     assert data["summary"]["total_requests"] > 0
     assert data["parse_stats"]["parsed_lines"] == 1
+    # Verify severity counts in API response
+    assert "finding_severity_counts" in data["summary"]
+    assert "incident_severity_counts" in data["summary"]
+    assert data["summary"]["finding_severity_counts"]["high"] == 0
+    assert data["summary"]["incident_severity_counts"]["high"] == 0
 
 def test_analyze_empty_file():
     """Test uploading an empty file."""

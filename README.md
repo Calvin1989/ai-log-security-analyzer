@@ -21,6 +21,7 @@ Local-first Web log security analysis with rule-based findings, aggregated incid
     *   *注：`samples/nginx_access_sample.log` 故意包含一条错误行用于演示此功能。*
 - **威胁检测**: 涵盖高频访问、路径扫描、敏感路径探测、异常 User-Agent 等多维度检测。
 - **Explainable Detection**: 增强的检测结果可解释性，每个 Finding 包含命中次数、命中字段和命中值列表，并支持前端展开/收起查看。
+- **Severity Distribution**: 提供直观的风险等级分布统计，分别展示 Findings 和 Incidents 的 High/Medium/Low 数量。
 - **智能聚合**: 自动将同一 IP 的多个可疑行为聚合成高级别的安全事件（如 Reconnaissance, Directory Scanning）。
 - **隐私保护**: 提供“脱敏报告”功能，自动隐藏 IP 后两段及敏感 Query 参数，支持安全地分享分析结论。
     *   **注意**：脱敏基于正则表达式，为 Best-effort 尝试（包括对报告中的解析错误样本进行脱敏），分享前仍建议人工检查敏感信息是否完全清除。

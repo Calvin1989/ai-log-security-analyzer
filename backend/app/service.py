@@ -7,7 +7,7 @@ from .incident import build_incidents
 from .report import generate_markdown_report
 from .sanitizer import sanitize_analysis_result
 
-def _calculate_summary(logs: List[LogEntry]) -> AnalysisSummary:
+def _calculate_summary(logs: List[LogEntry], findings: List[Finding] = None, incidents: List[Incident] = None) -> AnalysisSummary:
     """Calculates summary statistics from logs."""
     total_requests = len(logs)
     unique_ips = len(set(log.ip for log in logs))
@@ -20,13 +20,34 @@ def _calculate_summary(logs: List[LogEntry]) -> AnalysisSummary:
     top_ips = [{"ip": ip, "count": count} for ip, count in ip_counter.most_common(5)]
     top_paths = [{"path": path, "count": count} for path, count in path_counter.most_common(5)]
     
+    # Calculate severity counts
+    finding_severity_counts = {"high": 0, "medium": 0, "low": 0}
+    if findings:
+        for f in findings:
+            sev = f.severity.lower()
+            if sev in finding_severity_counts:
+                finding_severity_counts[sev] += 1
+            else:
+                finding_severity_counts[sev] = 1
+
+    incident_severity_counts = {"high": 0, "medium": 0, "low": 0}
+    if incidents:
+        for i in incidents:
+            sev = i.severity.lower()
+            if sev in incident_severity_counts:
+                incident_severity_counts[sev] += 1
+            else:
+                incident_severity_counts[sev] = 1
+
     return AnalysisSummary(
         total_requests=total_requests,
         unique_ips=unique_ips,
         total_4xx=total_4xx,
         total_5xx=total_5xx,
         top_ips=top_ips,
-        top_paths=top_paths
+        top_paths=top_paths,
+        finding_severity_counts=finding_severity_counts,
+        incident_severity_counts=incident_severity_counts
     )
 
 def analyze_log_text(log_text: str, config: Optional[DetectorConfig] = None, log_format: str = "auto") -> AnalysisResult:
@@ -44,9 +65,9 @@ def analyze_log_text(log_text: str, config: Optional[DetectorConfig] = None, log
     lines = log_text.strip().split('\n')
     logs, stats = parse_lines_with_stats(lines, log_format=log_format)
     
-    summary = _calculate_summary(logs)
     findings = detect(logs, config)
     incidents = build_incidents(findings)
+    summary = _calculate_summary(logs, findings, incidents)
     
     result = AnalysisResult(
         summary=summary,

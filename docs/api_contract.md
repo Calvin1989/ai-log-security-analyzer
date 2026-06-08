@@ -64,7 +64,17 @@ Returns an `AnalysisResult` JSON object.
     ],
     "top_paths": [
       { "path": "/login", "count": 11 }
-    ]
+    ],
+    "finding_severity_counts": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    },
+    "incident_severity_counts": {
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    }
   },
   "parse_stats": {
     "total_lines": 25,
