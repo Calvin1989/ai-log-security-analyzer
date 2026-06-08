@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.7-local] - 2026-06-08
+### Added
+- **Report Comparison**: Compare two analysis results from the Recent Analyses history.
+- **Severity Delta**: Visual tracking of changes in severity distribution (Critical, High, Medium, Low).
+- **Finding/Incident Change Tracking**: Identify added, removed, and unchanged risks between reports.
+- **Comparison Markdown Export**: Generate and download a comprehensive comparison report.
+- **Improved History Compatibility**: Graceful handling of older analysis records with missing metadata.
+
 ## [v1.6-local] - 2026-06-08
 ### Added
 - **Executive Summary**: A high-level, deterministic security summary designed for management or portfolio presentation.

@@ -23,7 +23,12 @@ This checklist ensures that the **AI Log Security Analyzer** is stable and ready
 
 ## 4. Manual UI/UX Verification
 - [ ] **File Upload**: Test uploading valid and invalid (too large, wrong extension) files.
-- [ ] **Analysis View**: Verify Summary Cards, Executive Summary (v1.6), Incidents List, Top IPs/Paths, and Findings List are rendered correctly.
+- [ ] **Analysis View**: Verify Summary Cards, Executive Summary (v1.6), Report Comparison (v1.7), Incidents List, Top IPs/Paths, and Findings List are rendered correctly.
+- [ ] **Report Comparison (v1.7)**:
+    - [ ] Verify that comparison can be performed between any two Recent Analyses.
+    - [ ] Verify that Risk Score Delta, Severity Changes, and Finding/Incident Changes are calculated correctly.
+    - [ ] Verify that "Download Comparison MD" generates a valid Markdown file.
+    - [ ] Verify that comparison works even if one report is missing fields (executive_summary, incidents, etc.).
 - [ ] **Executive Summary (v1.6)**:
     - [ ] Verify Risk Score (0-100) and Risk Level are calculated correctly based on findings.
     - [ ] Verify "Download MD" button generates a separate Markdown file.
@@ -57,9 +62,9 @@ This checklist ensures that the **AI Log Security Analyzer** is stable and ready
 - [ ] **Project Identity**:
     - [ ] `README.md` positioning is clear and professional.
     - [ ] `Why this project is different` section highlights local-first and rule-based approach.
-    - [ ] `Current local milestone` is updated to `v1.6-local`.
+    - [ ] `Current local milestone` is updated to `v1.7-local`.
 - [ ] **Standard Files**:
-    - [ ] `CHANGELOG.md` exists and covers v1.0 to v1.6.
+    - [ ] `CHANGELOG.md` exists and covers v1.0 to v1.7.
     - [ ] `LICENSE` (MIT) exists with correct copyright holder.
     - [ ] `.gitattributes` is configured for LF line endings.
 - [ ] **Documentation completeness**:

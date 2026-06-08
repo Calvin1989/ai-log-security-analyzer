@@ -11,21 +11,21 @@
 - **智能事件聚合**: 自动将零散的嫌疑事件聚合成高层级的安全事件（如“侦察行为”），提供更完整的上下文。
 - **攻击时间轴 (Attack Timeline)**: 提供攻击行为的时间线叙述，帮助您理清事件发生的先后顺序。
 - **Executive Summary (v1.6)**: 自动生成面向管理层或 Portfolio 的高层级、确定性安全摘要。包含风险评分（0-100）、风险等级（Critical 到 Informational）、核心指标、顶级风险点及修复建议。**完全基于规则，不依赖 LLM 或外部 API。**
+- **报告对比 (Report Comparison, v1.7)**: 支持对比两次历史分析结果，直观展示风险评分、严重程度分布、新增/消失的风险点及安全事件的变化趋势。
 - **安全脱敏分享**: 内置脱敏引擎，可自动屏蔽 IP 和 Token 等敏感信息，确保生成的报告可以安全地分享给相关方。
 - **分析师工作流导出**: 支持将筛选后的数据导出为 CSV 和 JSON，方便在外部工具中进行进一步调查。
 - **无数据库 / 无外部 API**: 零基础设施开销。直接运行应用即可开始分析。
 
 ## 项目状态
 
-**当前本地版本: v1.6-local**
+**当前本地版本: v1.7-local**
 
-| 特性 | 状态 |
+| 项目 | 状态 |
 | :--- | :--- |
-| **CI / 测试** | ![Passing](https://img.shields.io/badge/CI-Passing-brightgreen) |
-| **单元测试** | ![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen) |
-| **Docker** | ![Ready](https://img.shields.io/badge/Docker-Ready-blue) |
-
-*注：徽章图标仅用于展示当前的本地构建状态。*
+| **CI / 测试** | [![CI Status](https://github.com/Calvin1989/ai-log-security-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/Calvin1989/ai-log-security-analyzer/actions/workflows/ci.yml) |
+| **后端测试** | pytest，本地最近验证 46 passed |
+| **前端测试** | Vitest，本地最近验证 47 passed |
+| **Docker** | docker compose config 本地验证通过，CI 中执行配置校验 |
 
 ## 核心功能
 
@@ -48,6 +48,7 @@
 - **智能聚合**: 自动将同一 IP 的多个可疑行为聚合成高级别的安全事件（如 Reconnaissance, Directory Scanning）。
 - **Attack Timeline View**: 按照时间顺序展示关键安全事件，帮助分析师还原攻击全过程，支持按严重程度和 IP 进行本地过滤。
 - **Executive Summary (v1.6)**: 自动生成面向管理层或 Portfolio 的高层级、确定性安全摘要。包含风险评分（0-100）、风险等级（Critical 到 Informational）、核心指标、顶级风险点及修复建议。**完全基于规则，不依赖 LLM 或外部 API。**
+- **Report Comparison (v1.7)**: 提供“报告对比”功能，允许用户从“最近分析记录”中选择两个报告进行对比。系统会自动计算风险评分差值、严重程度分布变化，并列出新增、消失和持续存在的风险点 (Findings) 与安全事件 (Incidents)。支持导出对比报告 Markdown。
 - **隐私保护**: 提供“脱敏报告”功能，自动隐藏 IP 后两段及敏感 Query 参数，支持安全地分享分析结论。
     *   **注意**：脱敏基于正则表达式，为 Best-effort 尝试（包括对报告中的解析错误样本进行脱敏），分享前仍建议人工检查敏感信息是否完全清除。
 - **结构化展示**: 现代化的 Web 界面，包含统计看板、当前规则展示、事件视图和风险卡片。

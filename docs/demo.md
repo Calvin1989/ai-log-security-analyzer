@@ -46,16 +46,25 @@ If you prefer Docker, you can start both the backend and frontend with a single 
 2. Once the containers are running, access the application at [http://localhost:5173](http://localhost:5173).
 3. To stop the services, run `docker compose down`.
 
-## Step 3: 5-Minute Demo Script (Release v1.6 Ready)
+## Step 3: 5-Minute Demo Script (Release v1.7 Ready)
 
 1. **Launch with Docker**:
    - Run `docker compose up --build`.
    - Open `http://localhost:5173`.
-2. **Upload & Analyze**:
+2. **Initial Analysis**:
    - Click **"Choose a .log or .txt file"**.
    - Select `samples/nginx_access_sample.log`.
    - Click **"Analyze"**.
-3. **Review Executive Summary (v1.6)**:
+   - Review results and notice the entry in **Recent Analyses**.
+3. **Compare Analysis (v1.7)**:
+   - Upload the same file again or another sample (e.g., `samples/apache_access_sample.log`).
+   - Scroll to the **Report Comparison** section.
+   - Select the first analysis as **Baseline** and the second as **Target**.
+   - Click **"开始对比 (Start Comparison)"**.
+   - Review the **Risk Score Delta** and **Severity Changes**.
+   - Observe the **Finding/Incident Changes** (Added/Removed).
+   - Click **"下载对比报告 (Download Comparison MD)"**.
+4. **Review Executive Summary (v1.6)**:
    - Notice the **Executive Summary** card at the top.
    - Point out the **Risk Score (0-100)** and **Risk Level** (e.g., Critical/High).
    - Highlight that this summary is **deterministic and rule-based** (No LLM/External API).

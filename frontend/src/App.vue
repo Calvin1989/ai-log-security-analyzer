@@ -23,6 +23,10 @@
         @clear="handleClearHistory"
       />
 
+      <ReportComparison
+        :history="recentAnalyses"
+      />
+
       <div v-if="rules" class="config-section">
         <RuleConfigPanel :rules="rules" />
       </div>
@@ -95,6 +99,7 @@ import ParseStatsCard from './components/ParseStatsCard.vue'
 import SeverityDistribution from './components/SeverityDistribution.vue'
 import TimelineView from './components/TimelineView.vue'
 import RecentAnalyses from './components/RecentAnalyses.vue'
+import ReportComparison from './components/ReportComparison.vue'
 
 const {
   loading,

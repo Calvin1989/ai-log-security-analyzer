@@ -1,0 +1,482 @@
+<template>
+  <section class="comparison-container">
+    <div class="comparison-header">
+      <h3>报告对比 (Report Comparison)</h3>
+      <div class="header-actions">
+        <button v-if="comparison" @click="downloadMarkdown" class="download-btn">
+          下载对比报告 (Markdown)
+        </button>
+      </div>
+    </div>
+
+    <!-- Selection UI -->
+    <div v-if="history.length < 2" class="empty-state">
+      需要至少两个历史分析记录才能进行对比。目前仅有 {{ history.length }} 条记录。
+    </div>
+
+    <div v-else class="selection-ui">
+      <div class="selector-group">
+        <div class="selector">
+          <label>基准报告 (Baseline):</label>
+          <select v-model="baseId">
+            <option disabled value="">请选择基准报告</option>
+            <option v-for="record in history" :key="'base-' + record.id" :value="record.id">
+              {{ record.file_name }} ({{ formatDate(record.analyzed_at) }})
+            </option>
+          </select>
+        </div>
+
+        <div class="selector">
+          <label>目标报告 (Target):</label>
+          <select v-model="targetId">
+            <option disabled value="">请选择目标报告</option>
+            <option v-for="record in history" :key="'target-' + record.id" :value="record.id">
+              {{ record.file_name }} ({{ formatDate(record.analyzed_at) }})
+            </option>
+          </select>
+        </div>
+
+        <button @click="performComparison" :disabled="!baseId || !targetId || baseId === targetId" class="compare-btn">
+          开始对比
+        </button>
+      </div>
+    </div>
+
+    <!-- Comparison Results -->
+    <div v-if="comparison" class="results-ui">
+      <div class="narrative-summary">
+        <h4>{{ comparison.narrative.headline }}</h4>
+        <p class="overview">{{ comparison.narrative.overview }}</p>
+        <p class="key-changes">{{ comparison.narrative.keyChanges }}</p>
+      </div>
+
+      <div class="delta-cards">
+        <div class="delta-card" :class="{ 'risk-up': comparison.summary.riskScoreDelta > 0, 'risk-down': comparison.summary.riskScoreDelta < 0 }">
+          <div class="delta-label">风险评分变化</div>
+          <div class="delta-value">{{ comparison.summary.riskScoreDelta > 0 ? '+' : '' }}{{ comparison.summary.riskScoreDelta }}</div>
+        </div>
+        <div class="delta-card">
+          <div class="delta-label">风险点变化</div>
+          <div class="delta-value">{{ comparison.summary.totalFindingsDelta > 0 ? '+' : '' }}{{ comparison.summary.totalFindingsDelta }}</div>
+        </div>
+        <div class="delta-card">
+          <div class="delta-label">安全事件变化</div>
+          <div class="delta-value">{{ comparison.summary.totalIncidentsDelta > 0 ? '+' : '' }}{{ comparison.summary.totalIncidentsDelta }}</div>
+        </div>
+        <div class="delta-card">
+          <div class="delta-label">解析成功率变化</div>
+          <div class="delta-value">{{ comparison.summary.parseRateDelta > 0 ? '+' : '' }}{{ comparison.summary.parseRateDelta.toFixed(1) }}%</div>
+        </div>
+      </div>
+
+      <div class="severity-grid">
+        <h4>严重程度分布变化</h4>
+        <div class="severity-items">
+          <div v-for="s in comparison.severityChanges" :key="s.severity" class="severity-item">
+            <span class="sev-tag" :class="s.severity">{{ s.severity }}</span>
+            <span class="sev-counts">{{ s.baseCount }} &rarr; {{ s.targetCount }}</span>
+            <span class="sev-delta" :class="{ 'plus': s.delta > 0, 'minus': s.delta < 0 }">
+              ({{ s.delta > 0 ? '+' : '' }}{{ s.delta }})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="changes-grid">
+        <div class="change-section">
+          <h4>风险点变更 (Findings)</h4>
+          <div class="change-list">
+            <div v-if="comparison.findingChanges.added.length > 0" class="change-group added">
+              <h5>新增 ({{ comparison.findingChanges.added.length }})</h5>
+              <ul>
+                <li v-for="(f, i) in comparison.findingChanges.added.slice(0, 5)" :key="'f-add-'+i">
+                  <span class="sev-dot" :class="f.severity"></span> {{ f.title }}
+                </li>
+                <li v-if="comparison.findingChanges.added.length > 5" class="more">... 以及另外 {{ comparison.findingChanges.added.length - 5 }} 个</li>
+              </ul>
+            </div>
+            <div v-if="comparison.findingChanges.removed.length > 0" class="change-group removed">
+              <h5>消失 ({{ comparison.findingChanges.removed.length }})</h5>
+              <ul>
+                <li v-for="(f, i) in comparison.findingChanges.removed.slice(0, 5)" :key="'f-rem-'+i">
+                  <span class="sev-dot" :class="f.severity"></span> {{ f.title }}
+                </li>
+                <li v-if="comparison.findingChanges.removed.length > 5" class="more">... 以及另外 {{ comparison.findingChanges.removed.length - 5 }} 个</li>
+              </ul>
+            </div>
+            <div v-if="comparison.findingChanges.added.length === 0 && comparison.findingChanges.removed.length === 0" class="no-changes">
+              风险点无变化
+            </div>
+          </div>
+        </div>
+
+        <div class="change-section">
+          <h4>安全事件变更 (Incidents)</h4>
+          <div class="change-list">
+            <div v-if="comparison.incidentChanges.added.length > 0" class="change-group added">
+              <h5>新增 ({{ comparison.incidentChanges.added.length }})</h5>
+              <ul>
+                <li v-for="(inc, i) in comparison.incidentChanges.added.slice(0, 5)" :key="'inc-add-'+i">
+                  <span class="sev-dot" :class="inc.severity"></span> {{ inc.title }} ({{ inc.source_ip }})
+                </li>
+                <li v-if="comparison.incidentChanges.added.length > 5" class="more">... 以及另外 {{ comparison.incidentChanges.added.length - 5 }} 个</li>
+              </ul>
+            </div>
+            <div v-if="comparison.incidentChanges.removed.length > 0" class="change-group removed">
+              <h5>消失 ({{ comparison.incidentChanges.removed.length }})</h5>
+              <ul>
+                <li v-for="(inc, i) in comparison.incidentChanges.removed.slice(0, 5)" :key="'inc-rem-'+i">
+                  <span class="sev-dot" :class="inc.severity"></span> {{ inc.title }} ({{ inc.source_ip }})
+                </li>
+                <li v-if="comparison.incidentChanges.removed.length > 5" class="more">... 以及另外 {{ comparison.incidentChanges.removed.length - 5 }} 个</li>
+              </ul>
+            </div>
+            <div v-if="comparison.incidentChanges.added.length === 0 && comparison.incidentChanges.removed.length === 0" class="no-changes">
+              安全事件无变化
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue'
+import { compareAnalyses, generateComparisonMarkdown } from '../utils/comparisonUtils'
+import { downloadTextFile } from '../utils/exportUtils'
+
+const props = defineProps({
+  history: {
+    type: Array,
+    required: true
+  }
+})
+
+const baseId = ref('')
+const targetId = ref('')
+const comparison = ref(null)
+
+// Clear comparison if history changes and items disappear
+watch(() => props.history, (newHistory) => {
+  if (baseId.value && !newHistory.find(r => r.id === baseId.value)) baseId.value = ''
+  if (targetId.value && !newHistory.find(r => r.id === targetId.value)) targetId.value = ''
+  if (!baseId.value || !targetId.value) comparison.value = null
+}, { deep: true })
+
+const performComparison = () => {
+  const baseRecord = props.history.find(r => r.id === baseId.value)
+  const targetRecord = props.history.find(r => r.id === targetId.value)
+
+  if (baseRecord && targetRecord) {
+    // We need the full results. In our historyStorage, we might only have summaries.
+    // However, the prompt says "reuse localStorage in Recent Analyses".
+    // Let's assume the history records in props.history contain the 'result' field if available.
+    comparison.value = compareAnalyses(baseRecord, targetRecord)
+  }
+}
+
+const downloadMarkdown = () => {
+  if (!comparison.value) return
+  const md = generateComparisonMarkdown(comparison.value)
+  const dateStr = new Date().toISOString().split('T')[0]
+  downloadTextFile(`report_comparison_${dateStr}.md`, md, 'text/markdown')
+}
+
+const formatDate = (isoString) => {
+  if (!isoString) return 'Unknown'
+  const date = new Date(isoString)
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+</script>
+
+<style scoped>
+.comparison-container {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.comparison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.comparison-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.download-btn {
+  background: #339af0;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.download-btn:hover {
+  background: #228be6;
+}
+
+.empty-state {
+  font-size: 0.85rem;
+  color: #868e96;
+  text-align: center;
+  padding: 1.5rem 0;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.selection-ui {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.selector-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.selector label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.selector select {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.compare-btn {
+  background: #51cf66;
+  color: white;
+  border: none;
+  padding: 0.55rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.compare-btn:hover:not(:disabled) {
+  background: #40c057;
+}
+
+.compare-btn:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
+.results-ui {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1.5rem;
+}
+
+.narrative-summary {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f1f3f5;
+  border-radius: 6px;
+  border-left: 4px solid #339af0;
+}
+
+.narrative-summary h4 {
+  margin: 0 0 0.5rem 0;
+  color: #212529;
+}
+
+.overview {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #495057;
+}
+
+.key-changes {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.delta-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.delta-card {
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.delta-card.risk-up { border-top: 3px solid #fa5252; background: #fff5f5; }
+.delta-card.risk-down { border-top: 3px solid #40c057; background: #ebfbee; }
+
+.delta-label {
+  font-size: 0.75rem;
+  color: #868e96;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.delta-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.severity-grid {
+  margin-bottom: 2rem;
+}
+
+.severity-grid h4 {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  color: #495057;
+}
+
+.severity-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.severity-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.sev-tag {
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+}
+
+.sev-tag.critical { background: #fff5f5; color: #e03131; }
+.sev-tag.high { background: #fff5f5; color: #fa5252; }
+.sev-tag.medium { background: #fff9db; color: #f08c00; }
+.sev-tag.low { background: #ebfbee; color: #2b8a3e; }
+.sev-tag.info, .sev-tag.informational { background: #e7f5ff; color: #1971c2; }
+
+.sev-counts {
+  color: #495057;
+  font-family: monospace;
+}
+
+.sev-delta.plus { color: #e03131; font-weight: 600; }
+.sev-delta.minus { color: #2b8a3e; font-weight: 600; }
+
+.changes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.change-section h4 {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  color: #495057;
+}
+
+.change-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.change-group {
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.change-group.added { background: #ebfbee; border: 1px solid #d3f9d8; }
+.change-group.removed { background: #f8f9fa; border: 1px solid #e9ecef; }
+
+.change-group h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.change-group.added h5 { color: #2b8a3e; }
+.change-group.removed h5 { color: #868e96; }
+
+.change-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.change-group li {
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sev-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.sev-dot.critical { background: #e03131; }
+.sev-dot.high { background: #fa5252; }
+.sev-dot.medium { background: #fab005; }
+.sev-dot.low { background: #40c057; }
+.sev-dot.info, .sev-dot.informational { background: #339af0; }
+
+.more {
+  font-style: italic;
+  color: #868e96;
+  font-size: 0.75rem !important;
+}
+
+.no-changes {
+  font-size: 0.85rem;
+  color: #adb5bd;
+  font-style: italic;
+}
+</style>
