@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { t } from '../i18n'
 import * as storage from '../utils/triageStorage'
 
@@ -126,6 +126,10 @@ const priorityFilter = ref('')
 // Local copy of triage state to trigger reactivity
 const triageState = ref(storage.getTriageState(props.caseId))
 
+watch(() => props.caseId, (newCaseId) => {
+  triageState.value = storage.getTriageState(newCaseId)
+})
+
 const hasTriageData = computed(() => Object.keys(triageState.value).length > 0)
 
 const allItems = computed(() => {
@@ -135,10 +139,10 @@ const allItems = computed(() => {
   if (props.analysisResult.incidents) {
     props.analysisResult.incidents.forEach(inc => {
       items.push({
-        key: `incident:${inc.id}`,
+        key: `incident:${inc.incident_id || inc.id}`,
         type: 'incident',
         id: inc.title,
-        description: inc.description
+        description: inc.description || inc.summary
       })
     })
   }

@@ -60,6 +60,14 @@ describe('triageStorage', () => {
     expect(md).toContain('open');
   })
 
+  it('should copy triage state to another case', () => {
+    storage.saveTriageItem(caseId, 'finding:rule-1', { status: 'investigating', priority: 'high' });
+    storage.copyTriageState(caseId, 'copied-case');
+
+    expect(storage.getTriageState('copied-case')['finding:rule-1']).toBeDefined();
+    expect(storage.getTriageState('copied-case')['finding:rule-1'].status).toBe('investigating');
+  })
+
   it('should handle malformed JSON in localStorage', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     localStorage.setItem(STORAGE_KEY, 'invalid-json')

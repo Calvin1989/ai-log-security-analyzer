@@ -32,6 +32,14 @@
         >
           {{ t('report.downloadSummary') }}
         </button>
+        <button
+          v-if="result"
+          @click="downloadEvidencePackMarkdown"
+          class="download-btn evidence-pack"
+          :title="t('report.downloadEvidencePack')"
+        >
+          {{ t('report.downloadEvidencePack') }}
+        </button>
       </div>
     </div>
     
@@ -69,12 +77,17 @@
 import { ref, computed } from 'vue'
 import { downloadJson, buildAnalysisSummaryExport } from '../utils/exportUtils'
 import { t, currentLanguage } from '../i18n'
+import { downloadEvidencePack } from '../utils/evidencePackExport'
 import { buildLocalizedMarkdownReport } from '../utils/localizedReport'
 
 const props = defineProps({
   result: {
     type: Object,
     default: null
+  },
+  caseId: {
+    type: String,
+    default: 'current-analysis'
   },
   reportMarkdown: {
     type: String,
@@ -198,6 +211,14 @@ const downloadSummaryJson = () => {
   const dateStr = new Date().toISOString().split('T')[0]
   downloadJson(`analysis_summary_${dateStr}.json`, summaryData)
 }
+
+const downloadEvidencePackMarkdown = () => {
+  if (!props.result) return
+  downloadEvidencePack(props.result, {
+    caseId: props.caseId,
+    language: currentLanguage.value
+  })
+}
 </script>
 
 <style scoped>
@@ -282,6 +303,13 @@ const downloadSummaryJson = () => {
 }
 .download-btn.summary:hover {
   background-color: #5a32a3;
+}
+
+.download-btn.evidence-pack {
+  background-color: #e67700;
+}
+.download-btn.evidence-pack:hover {
+  background-color: #d46b08;
 }
 
 .mini-error {

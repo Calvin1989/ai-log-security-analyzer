@@ -8,6 +8,7 @@ import {
 } from '../api'
 import { getRecentAnalyses, saveAnalysisRecord, updateAnalysisRecord, clearRecentAnalyses } from '../utils/historyStorage'
 import * as caseStorage from '../utils/caseWorkspaceStorage'
+import * as triageStorage from '../utils/triageStorage'
 
 export const currentAnalysisResult = ref(null)
 
@@ -208,6 +209,9 @@ export function useAnalysisState() {
     }
 
     caseStorage.saveCase(caseRecord)
+    if (currentCaseId.value && currentCaseId.value !== caseRecord.id) {
+      triageStorage.copyTriageState(currentCaseId.value, caseRecord.id)
+    }
     savedCases.value = caseStorage.listCases()
     currentCaseId.value = caseRecord.id
     return caseRecord

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- **Analyst Evidence Pack Export**: Added a local-first Markdown evidence pack export for the current analysis result, designed for analyst handoff and ticket workflows.
+- **Evidence Pack Content Reuse**: Reused existing findings, incidents, timeline, rule coverage, parse stats, batch source file metadata, triage state, and saved case metadata when available.
+- **Bilingual Export Entry**: Added `Download Evidence Pack` / `下载证据包` in the report area with i18n coverage and missing-data fallbacks.
+
+## [v2.2.2-local] - 2026-06-09
+### Added
 - **Windows Port Troubleshooting**: Added documentation for resolving port 8000 conflicts (WinError 10013) on Windows systems.
 - **Alternative Startup Guide**: Documented safe alternate backend port (18080) and instructions for proxy adjustment.
 

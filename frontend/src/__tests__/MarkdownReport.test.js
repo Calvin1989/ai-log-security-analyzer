@@ -71,4 +71,33 @@ describe('MarkdownReport.vue', () => {
     expect(mockAnchor.click).toHaveBeenCalled()
     expect(mockAnchor.download).toBe('security_report.md')
   })
+
+  it('downloads evidence pack markdown when button is clicked', async () => {
+    const createObjectURLMock = vi.fn(() => 'blob:evidence')
+    const revokeObjectURLMock = vi.fn()
+    global.URL.createObjectURL = createObjectURLMock
+    global.URL.revokeObjectURL = revokeObjectURLMock
+
+    const mockAnchor = { href: '', download: '', click: vi.fn(), style: {} }
+    const originalCreateElement = document.createElement.bind(document)
+    vi.spyOn(document, 'createElement').mockImplementation((tag) => {
+      if (tag === 'a') return mockAnchor
+      return originalCreateElement(tag)
+    })
+    vi.spyOn(document.body, 'appendChild').mockImplementation(() => {})
+    vi.spyOn(document.body, 'removeChild').mockImplementation(() => {})
+
+    const wrapper = mount(MarkdownReport, {
+      props: {
+        reportMarkdown: mockMarkdown,
+        result: mockResult,
+        caseId: 'case-1'
+      }
+    })
+
+    await wrapper.find('.download-btn.evidence-pack').trigger('click')
+
+    expect(mockAnchor.click).toHaveBeenCalled()
+    expect(mockAnchor.download).toContain('analyst_evidence_pack_')
+  })
 })
