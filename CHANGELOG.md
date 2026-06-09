@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- **Windows Port Troubleshooting**: Added documentation for resolving port 8000 conflicts (WinError 10013) on Windows systems.
+- **Alternative Startup Guide**: Documented safe alternate backend port (18080) and instructions for proxy adjustment.
 
 ## [v2.2.1-local] - 2026-06-09
 ### Fixed

@@ -99,6 +99,26 @@ npm run dev
 
 ---
 
+## ❓ Troubleshooting (常见问题)
+
+### Windows 端口占用 (WinError 10013)
+在 Windows 环境下启动后端时，可能会遇到 `[Errno 10013] An attempt was made to access a socket in a way forbidden by its access permissions` 错误。
+
+这通常是因为默认端口 `8000` 被 Windows 服务、Hyper-V、WSL、Docker 或某些 VPN 客户端保留。
+
+**1. 检查保留端口范围**
+运行以下命令查看当前系统保留的端口范围：
+```powershell
+netsh interface ipv4 show excludedportrange protocol=tcp
+```
+
+**2. 使用备用端口启动**
+如果 `8000` 端口被占用，请指定一个未被保留的端口（如 `18080`）：
+- **后端**: `uvicorn app.main:app --reload --host 127.0.0.1 --port 18080`
+- **前端**: 如果后端使用了备用端口，需要临时调整 `frontend/src/api.js` 或 `vite.config.js` 中的代理配置。当前默认代理配置指向 `http://localhost:8000`。
+
+---
+
 ## 🛡️ 安全与隐私
 
 - **Data Privacy**: 本工具仅作为处理引擎，不存储您的任何日志数据。
