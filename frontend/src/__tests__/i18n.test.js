@@ -119,4 +119,14 @@ describe('i18n tool', () => {
     expect(t('triage.title')).toBe('Analyst Triage Workflow')
     expect(t('triage.status')).toBe('Status')
   })
+
+  it('should have evidence pack translations', () => {
+    setLanguage('zh')
+    expect(t('report.downloadEvidencePack')).toBe('下载证据包')
+    expect(t('evidencePack.notAvailable')).toBe('暂无数据')
+
+    setLanguage('en')
+    expect(t('report.downloadEvidencePack')).toBe('Download Evidence Pack')
+    expect(t('evidencePack.notAvailable')).toBe('Not available')
+  })
 })

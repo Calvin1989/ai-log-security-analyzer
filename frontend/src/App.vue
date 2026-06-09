@@ -103,8 +103,9 @@
         />
 
         <MarkdownReport
-          :result="displayResult"
+          :result="result"
           :reportMarkdown="displayResult.report_markdown"
+          :caseId="currentCaseId"
           :file="selectedFile"
           :sanitizing="sanitizingReport"
           :sanitizedAvailable="isSanitizedAvailable"

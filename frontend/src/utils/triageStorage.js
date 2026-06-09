@@ -49,6 +49,30 @@ export function listTriageItems(caseId) {
 }
 
 /**
+ * Replaces the entire triage state for a specific case.
+ * @param {string} caseId
+ * @param {Object} triageState
+ * @returns {Object}
+ */
+export function setTriageState(caseId, triageState) {
+  const key = STORAGE_KEY_PREFIX + caseId;
+  const safeState = triageState && typeof triageState === 'object' ? triageState : {};
+  localStorage.setItem(key, JSON.stringify(safeState));
+  return safeState;
+}
+
+/**
+ * Copies triage state from one case id to another.
+ * @param {string} fromCaseId
+ * @param {string} toCaseId
+ * @returns {Object}
+ */
+export function copyTriageState(fromCaseId, toCaseId) {
+  const sourceState = getTriageState(fromCaseId);
+  return setTriageState(toCaseId, sourceState);
+}
+
+/**
  * Deletes a triage item for a specific case.
  * @param {string} caseId 
  * @param {string} itemKey 

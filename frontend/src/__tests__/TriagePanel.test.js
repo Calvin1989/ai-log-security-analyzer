@@ -19,7 +19,7 @@ vi.mock('../utils/triageStorage', () => ({
 
 describe('TriagePanel.vue', () => {
   const mockAnalysisResult = {
-    incidents: [{ id: 'inc-1', title: 'Incident 1', description: 'Desc 1' }],
+    incidents: [{ incident_id: 'inc-1', title: 'Incident 1', summary: 'Desc 1' }],
     findings: [{ rule_id: 'rule-1', title: 'Finding 1', description: 'Desc 2' }]
   }
   const caseId = 'case-123'
