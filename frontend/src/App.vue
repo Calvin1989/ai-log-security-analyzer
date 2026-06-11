@@ -112,6 +112,17 @@
           @triage-state-change="handleTriageStateChange"
         />
 
+        <CaseClosureChecklist
+          v-if="displayResult"
+          :result="result"
+          :displayResult="displayResult"
+          :caseNotes="caseNotesForQuality"
+          :reviewReadiness="reviewReadinessForQuality"
+          :evidencePackQuality="evidencePackQualityForGuardrails"
+          :exportGuardrails="exportGuardrails"
+          :shareSafety="evidencePackShareSafetySummary"
+        />
+
         <ReviewReadinessPanel
           v-if="displayResult"
           :key="reviewReadinessKey"
@@ -205,6 +216,7 @@ import EvidencePackQualityScore from './components/EvidencePackQualityScore.vue'
 import EvidencePackExportGuardrails from './components/EvidencePackExportGuardrails.vue'
 import EvidencePackShareSafety from './components/EvidencePackShareSafety.vue'
 import EvidencePackExportPreview from './components/EvidencePackExportPreview.vue'
+import CaseClosureChecklist from './components/CaseClosureChecklist.vue'
 import ReviewReadinessPanel from './components/ReviewReadinessPanel.vue'
 import TriagePanel from './components/TriagePanel.vue'
 import InvestigationEntities from './components/InvestigationEntities.vue'
