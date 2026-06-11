@@ -343,4 +343,42 @@ describe('i18n tool', () => {
       expect(/[一-龥]/.test(value)).toBe(true)
     })
   })
+
+  it('should have case closure checklist translations in both languages', () => {
+    setLanguage('zh')
+    expect(t('caseClosureChecklist.title')).toBe('案件收尾检查清单')
+    expect(t('caseClosureChecklist.subtitle')).toBe('关闭案件前复核关键调查与交接信号。')
+    expect(t('caseClosureChecklist.statusAvailable')).toBe('可用')
+    expect(t('caseClosureChecklist.statusNeedsReview')).toBe('需复核')
+    expect(t('caseClosureChecklist.handoffReadiness')).toBe('Evidence Pack handoff readiness')
+    expect(t('caseClosureChecklist.findingsReviewedDetail', {
+      count: 3,
+      reviewed: 1,
+      total: 2
+    })).toContain('已复核 1 / 2')
+
+    setLanguage('en')
+    expect(t('caseClosureChecklist.title')).toBe('Case closure checklist')
+    expect(t('caseClosureChecklist.subtitle')).toBe('Review key investigation and handoff signals before closing the case.')
+    expect(t('caseClosureChecklist.statusUnavailable')).toBe('Unavailable')
+    expect(t('caseClosureChecklist.statusReady')).toBe('Ready')
+    expect(t('caseClosureChecklist.handoffNeedsReviewDetail')).toContain('still needs analyst review')
+  })
+
+  it('should keep case closure checklist Chinese strings readable', () => {
+    setLanguage('zh')
+
+    const values = [
+      t('caseClosureChecklist.title'),
+      t('caseClosureChecklist.subtitle'),
+      t('caseClosureChecklist.findingsUnavailableDetail'),
+      t('caseClosureChecklist.caseNotesMissingDetail'),
+      t('caseClosureChecklist.handoffNeedsReviewDetail')
+    ]
+
+    values.forEach((value) => {
+      expect(value).not.toContain('\ufffd')
+      expect(/[一-龥]/.test(value)).toBe(true)
+    })
+  })
 })
