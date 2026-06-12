@@ -176,35 +176,54 @@
             </div>
 
             <template v-if="displayResult">
-              <AnalysisContextBar :analysisResult="displayResult" />
+              <div class="triage-review-layout" data-testid="triage-review-layout">
+                <div class="triage-review-intro" data-testid="triage-review-intro">
+                  <div class="triage-review-intro-icon">📋</div>
+                  <p class="triage-review-intro-text">This view organizes your investigation workflow: triage decisions, case notes, review readiness, and closure checklist.</p>
+                </div>
 
-              <TriagePanel
-                :caseId="currentCaseId"
-                :analysisResult="displayResult"
-                @triage-state-change="handleTriageStateChange"
-              />
+                <div class="triage-review-decisions-group" data-testid="triage-review-decisions-group">
+                  <div class="group-header">
+                    <h3 class="group-title">Investigation Decisions</h3>
+                    <span class="group-description">Triage findings and record case notes</span>
+                  </div>
+                  <div class="group-content">
+                    <TriagePanel
+                      :caseId="currentCaseId"
+                      :analysisResult="displayResult"
+                      @triage-state-change="handleTriageStateChange"
+                    />
+                    <CaseNotesPanel
+                      :caseId="currentCaseId === 'current-analysis' ? caseNotesContextId : currentCaseId"
+                      @notes-change="handleCaseNotesChange"
+                    />
+                  </div>
+                </div>
 
-              <CaseNotesPanel
-                :caseId="currentCaseId === 'current-analysis' ? caseNotesContextId : currentCaseId"
-                @notes-change="handleCaseNotesChange"
-              />
-
-              <ReviewReadinessPanel
-                :key="reviewReadinessKey"
-                :result="result"
-                :triageState="triageState"
-                :caseId="reviewReadinessCaseId"
-              />
-
-              <CaseClosureChecklist
-                :result="result"
-                :displayResult="displayResult"
-                :caseNotes="caseNotesForQuality"
-                :reviewReadiness="reviewReadinessForQuality"
-                :evidencePackQuality="evidencePackQualityForGuardrails"
-                :exportGuardrails="exportGuardrails"
-                :shareSafety="evidencePackShareSafetySummary"
-              />
+                <div class="triage-review-readiness-group" data-testid="triage-review-readiness-group">
+                  <div class="group-header">
+                    <h3 class="group-title">Review & Readiness</h3>
+                    <span class="group-description">Check readiness and prepare for handoff</span>
+                  </div>
+                  <div class="group-content">
+                    <ReviewReadinessPanel
+                      :key="reviewReadinessKey"
+                      :result="result"
+                      :triageState="triageState"
+                      :caseId="reviewReadinessCaseId"
+                    />
+                    <CaseClosureChecklist
+                      :result="result"
+                      :displayResult="displayResult"
+                      :caseNotes="caseNotesForQuality"
+                      :reviewReadiness="reviewReadinessForQuality"
+                      :evidencePackQuality="evidencePackQualityForGuardrails"
+                      :exportGuardrails="exportGuardrails"
+                      :shareSafety="evidencePackShareSafetySummary"
+                    />
+                  </div>
+                </div>
+              </div>
             </template>
 
             <div v-else class="empty-view-state" data-testid="workspace-empty-state">
@@ -771,6 +790,91 @@ header h1 {
 
   .main-actions {
     flex-direction: column;
+  }
+}
+
+/* Triage/Review Layout Styles */
+.triage-review-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.triage-review-intro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+  border: 1px solid #e0f2fe;
+  border-radius: 10px;
+}
+
+.triage-review-intro-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.triage-review-intro-text {
+  margin: 0;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.triage-review-decisions-group,
+.triage-review-readiness-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.group-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.group-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.group-description {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.group-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 0.25rem;
+}
+
+/* Remove top margins from components that already have them */
+.group-content > * {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .triage-review-intro {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 1rem;
+  }
+
+  .triage-review-intro-icon {
+    font-size: 1.5rem;
+  }
+
+  .group-content {
+    gap: 1rem;
   }
 }
 </style>

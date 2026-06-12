@@ -338,6 +338,10 @@ describe('App.vue workspace shell', () => {
 
     await wrapper.get('[data-testid="workspace-nav-triageReview"]').trigger('click')
     expect(wrapper.get('[data-testid="workspace-view-triageReview"]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="triage-review-layout"]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="triage-review-intro"]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="triage-review-decisions-group"]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="triage-review-readiness-group"]').exists()).toBe(true)
     expect(wrapper.get('[data-testid="triage-panel"]').exists()).toBe(true)
     expect(wrapper.get('[data-testid="case-closure-checklist"]').exists()).toBe(true)
 
