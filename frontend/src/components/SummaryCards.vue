@@ -1,28 +1,33 @@
 <template>
-  <section class="result-card">
-    <h2>{{ t('summary.title') }}</h2>
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-label">{{ t('summary.totalRequests') }}</span>
-        <span class="stat-value">{{ summary.total_requests }}</span>
+  <Card data-testid="summary-cards">
+    <CardHeader>
+      <CardTitle>{{ t('summary.title') }}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">{{ t('summary.totalRequests') }}</span>
+          <span class="stat-value">{{ summary.total_requests }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">{{ t('summary.uniqueIps') }}</span>
+          <span class="stat-value">{{ summary.unique_ips }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">{{ t('summary.total4xx') }}</span>
+          <span class="stat-value">{{ summary.total_4xx }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">{{ t('summary.total5xx') }}</span>
+          <span class="stat-value">{{ summary.total_5xx }}</span>
+        </div>
       </div>
-      <div class="stat-item">
-        <span class="stat-label">{{ t('summary.uniqueIps') }}</span>
-        <span class="stat-value">{{ summary.unique_ips }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">{{ t('summary.total4xx') }}</span>
-        <span class="stat-value">{{ summary.total_4xx }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">{{ t('summary.total5xx') }}</span>
-        <span class="stat-value">{{ summary.total_5xx }}</span>
-      </div>
-    </div>
-  </section>
+    </CardContent>
+  </Card>
 </template>
 
 <script setup>
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { t } from '../i18n'
 
 defineProps({
@@ -34,24 +39,6 @@ defineProps({
 </script>
 
 <style scoped>
-.result-card {
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.result-card h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-  color: #495057;
-  border-bottom: 2px solid #f1f3f5;
-  padding-bottom: 0.5rem;
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
